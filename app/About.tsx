@@ -7,50 +7,125 @@ import {
   TouchableOpacity,
   Image,
   Animated,
+  Dimensions,
+  Linking,
 } from "react-native";
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons, FontAwesome5 } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
+
+const { width: screenWidth } = Dimensions.get('window');
 
 export default function ModernAboutScreen() {
   const fadeAnim = new Animated.Value(0);
   const slideAnim = new Animated.Value(30);
+  const scaleAnim = new Animated.Value(0.8);
 
   useEffect(() => {
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
-        duration: 800,
+        duration: 1000,
         useNativeDriver: true,
       }),
       Animated.timing(slideAnim, {
         toValue: 0,
+        duration: 800,
+        useNativeDriver: true,
+      }),
+      Animated.timing(scaleAnim, {
+        toValue: 1,
         duration: 600,
         useNativeDriver: true,
       }),
     ]).start();
   }, []);
 
+  const teamMembers = [
+    {
+      id: 1,
+      name: "Alice M.",
+      role: "Founder & CEO",
+      avatar: "👩‍💼",
+      description: "Agriculture Tech Expert"
+    },
+    {
+      id: 2,
+      name: "David K.",
+      role: "Head of Product",
+      avatar: "👨‍💻",
+      description: "Software Engineer"
+    },
+    {
+      id: 3,
+      name: "Grace U.",
+      role: "Agronomy Lead",
+      avatar: "👩‍🌾",
+      description: "Agricultural Scientist"
+    },
+    {
+      id: 4,
+      name: "James T.",
+      role: "Community Manager",
+      avatar: "👨‍🤝‍👨",
+      description: "Farmer Relations"
+    }
+  ];
+
+  const features = [
+    {
+      icon: "weather-partly-cloudy",
+      title: "AI Weather Intelligence",
+      description: "Real-time hyper-local forecasts"
+    },
+    {
+      icon: "shopping",
+      title: "Digital Marketplace",
+      description: "Direct buyer connections"
+    },
+    {
+      icon: "robot",
+      title: "AURA AI Assistant",
+      description: "24/7 farming guidance"
+    },
+    {
+      icon: "camera",
+      title: "Plant Disease Detection",
+      description: "Instant crop health analysis"
+    }
+  ];
+
+  const openLink = (url: string) => {
+    Linking.openURL(url).catch(err => console.error('Failed to open URL:', err));
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
-      {/* Animated Background Orbs */}
+      {/* Animated Background */}
       <View style={styles.backgroundOverlay}>
-        <View style={[styles.floatingOrb, styles.orb1]} />
-        <View style={[styles.floatingOrb, styles.orb2]} />
+        <Animated.View style={[styles.floatingOrb, styles.orb1]} />
+        <Animated.View style={[styles.floatingOrb, styles.orb2]} />
+        <Animated.View style={[styles.floatingOrb, styles.orb3]} />
       </View>
 
-      <ScrollView contentContainerStyle={styles.container}>
+      <ScrollView 
+        contentContainerStyle={styles.container}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Modern Header */}
         <View style={styles.header}>
           <TouchableOpacity 
             style={styles.backButton}
             onPress={() => router.back()}
           >
-            <Ionicons name="arrow-back" size={24} color="#10b981" />
+            <Ionicons name="arrow-back" size={22} color="#00FF88" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>About Us</Text>
-          <TouchableOpacity style={styles.shareButton}>
-            <Ionicons name="share-social-outline" size={22} color="#10b981" />
+          <TouchableOpacity 
+            style={styles.shareButton}
+            onPress={() => {/* Share functionality */}}
+          >
+            <Ionicons name="share-outline" size={22} color="#00FF88" />
           </TouchableOpacity>
         </View>
 
@@ -62,268 +137,378 @@ export default function ModernAboutScreen() {
         >
           {/* Hero Section */}
           <View style={styles.heroSection}>
-            <View style={styles.heroImageContainer}>
-              <Image
-                source={{
-                  uri: "https://via.placeholder.com/400x200/006400/FFFFFF?text=UmuhinziHub+Community",
-                }}
-                style={styles.heroImage}
-              />
-              <View style={styles.heroOverlay}>
-                <View style={styles.logoIconLarge}>
-                  <Ionicons name="leaf" size={40} color="#0a0e14" />
+            <View style={styles.heroContent}>
+              <View style={styles.heroBadge}>
+                <Ionicons name="sparkles" size={16} color="#00FF88" />
+                <Text style={styles.heroBadgeText}>Transforming Agriculture</Text>
+              </View>
+              
+              <Text style={styles.heroTitle}>
+                Empowering Farmers Through{"\n"}
+                <Text style={styles.heroTitleHighlight}>Technology</Text>
+              </Text>
+              
+              <Text style={styles.heroDescription}>
+                UmuhinziHub is revolutionizing African agriculture by connecting farmers with cutting-edge technology, market access, and community support.
+              </Text>
+
+              <View style={styles.heroStats}>
+                <View style={styles.heroStat}>
+                  <Text style={styles.heroStatNumber}>50K+</Text>
+                  <Text style={styles.heroStatLabel}>Farmers</Text>
+                </View>
+                <View style={styles.heroStat}>
+                  <Text style={styles.heroStatNumber}>40%</Text>
+                  <Text style={styles.heroStatLabel}>Yield Increase</Text>
+                </View>
+                <View style={styles.heroStat}>
+                  <Text style={styles.heroStatNumber}>95%</Text>
+                  <Text style={styles.heroStatLabel}>Satisfaction</Text>
                 </View>
               </View>
             </View>
-
-            <View style={styles.heroBadge}>
-              <Ionicons name="people" size={16} color="#10b981" />
-              <Text style={styles.heroBadgeText}>50,000+ Active Farmers</Text>
-            </View>
           </View>
 
-          {/* Who We Are */}
+          {/* Mission & Vision */}
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
-              <View style={styles.sectionIconWrapper}>
-                <Ionicons name="information-circle" size={24} color="#10b981" />
-              </View>
-              <Text style={styles.sectionTitle}>Who We Are</Text>
-            </View>
-            <Text style={styles.paragraph}>
-              <Text style={styles.brandName}>UmuhinziHub </Text>
-              is a digital farming platform built to empower smallholder farmers
-              across Rwanda and beyond. We connect technology, markets, and
-              financial solutions to help farmers grow smarter and earn better.
-            </Text>
-          </View>
-
-          {/* Mission & Vision Cards */}
-          <View style={styles.cardGrid}>
-            <View style={styles.missionCard}>
-              <View style={styles.cardIconContainer}>
-                <MaterialCommunityIcons name="target" size={32} color="#10b981" />
-              </View>
-              <Text style={styles.cardTitle}>Our Mission</Text>
-              <Text style={styles.cardDescription}>
-                To revolutionize farming by providing access to data-driven advice,
-                digital marketplaces, and real-time agricultural information.
+              <Text style={styles.sectionTitle}>Our Purpose</Text>
+              <Text style={styles.sectionSubtitle}>
+                Driving agricultural transformation in Africa
               </Text>
             </View>
 
-            <View style={styles.visionCard}>
-              <View style={styles.cardIconContainer}>
-                <MaterialCommunityIcons name="earth" size={32} color="#06b6d4" />
+            <View style={styles.purposeGrid}>
+              <View style={styles.purposeCard}>
+                <View style={styles.purposeIcon}>
+                  <MaterialCommunityIcons name="target" size={28} color="#00FF88" />
+                </View>
+                <Text style={styles.purposeTitle}>Mission</Text>
+                <Text style={styles.purposeDescription}>
+                  Empower smallholder farmers with AI-driven insights, market access, and sustainable farming practices.
+                </Text>
               </View>
-              <Text style={styles.cardTitle}>Our Vision</Text>
-              <Text style={styles.cardDescription}>
-                A thriving farming community empowered by technology, sustainable
-                practices, and improved livelihoods.
-              </Text>
+
+              <View style={styles.purposeCard}>
+                <View style={styles.purposeIcon}>
+                  <MaterialCommunityIcons name="eye" size={28} color="#60A5FA" />
+                </View>
+                <Text style={styles.purposeTitle}>Vision</Text>
+                <Text style={styles.purposeDescription}>
+                  Create a future where every African farmer thrives through technology and community support.
+                </Text>
+              </View>
             </View>
           </View>
 
           {/* Core Values */}
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
-              <View style={styles.sectionIconWrapper}>
-                <Ionicons name="heart" size={24} color="#10b981" />
-              </View>
-              <Text style={styles.sectionTitle}>Our Core Values</Text>
+              <Text style={styles.sectionTitle}>Our Values</Text>
+              <Text style={styles.sectionSubtitle}>
+                The principles that guide everything we do
+              </Text>
             </View>
 
             <View style={styles.valuesGrid}>
-              <View style={styles.valueCard}>
-                <MaterialCommunityIcons name="leaf" size={28} color="#10b981" />
+              <View style={styles.valueItem}>
+                <View style={[styles.valueIcon, { backgroundColor: 'rgba(0, 255, 136, 0.2)' }]}>
+                  <MaterialCommunityIcons name="leaf" size={24} color="#00FF88" />
+                </View>
                 <Text style={styles.valueTitle}>Sustainability</Text>
+                <Text style={styles.valueDescription}>Environmentally conscious farming</Text>
               </View>
-              <View style={styles.valueCard}>
-                <MaterialCommunityIcons name="handshake" size={28} color="#10b981" />
-                <Text style={styles.valueTitle}>Collaboration</Text>
+
+              <View style={styles.valueItem}>
+                <View style={[styles.valueIcon, { backgroundColor: 'rgba(96, 165, 250, 0.2)' }]}>
+                  <MaterialCommunityIcons name="handshake" size={24} color="#60A5FA" />
+                </View>
+                <Text style={styles.valueTitle}>Community</Text>
+                <Text style={styles.valueDescription}>Farmer-first approach</Text>
               </View>
-              <View style={styles.valueCard}>
-                <MaterialCommunityIcons name="lightbulb-on" size={28} color="#10b981" />
+
+              <View style={styles.valueItem}>
+                <View style={[styles.valueIcon, { backgroundColor: 'rgba(252, 211, 77, 0.2)' }]}>
+                  <MaterialCommunityIcons name="lightbulb-on" size={24} color="#FCD34D" />
+                </View>
                 <Text style={styles.valueTitle}>Innovation</Text>
+                <Text style={styles.valueDescription}>Cutting-edge technology</Text>
               </View>
-              <View style={styles.valueCard}>
-                <MaterialCommunityIcons name="account-heart" size={28} color="#10b981" />
-                <Text style={styles.valueTitle}>Empowerment</Text>
-              </View>
-              <View style={styles.valueCard}>
-                <MaterialCommunityIcons name="eye-check" size={28} color="#10b981" />
-                <Text style={styles.valueTitle}>Transparency</Text>
-              </View>
-              <View style={styles.valueCard}>
-                <MaterialCommunityIcons name="shield-check" size={28} color="#10b981" />
+
+              <View style={styles.valueItem}>
+                <View style={[styles.valueIcon, { backgroundColor: 'rgba(216, 191, 216, 0.2)' }]}>
+                  <MaterialCommunityIcons name="shield-check" size={24} color="#D8BFD8" />
+                </View>
                 <Text style={styles.valueTitle}>Trust</Text>
+                <Text style={styles.valueDescription}>Reliable and transparent</Text>
               </View>
+            </View>
+          </View>
+
+          {/* Features */}
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>What We Offer</Text>
+              <Text style={styles.sectionSubtitle}>
+                Comprehensive farming solutions
+              </Text>
+            </View>
+
+            <View style={styles.featuresGrid}>
+              {features.map((feature, index) => (
+                <View key={index} style={styles.featureCard}>
+                  <View style={styles.featureIcon}>
+                    <MaterialCommunityIcons name={feature.icon as any} size={24} color="#00FF88" />
+                  </View>
+                  <Text style={styles.featureTitle}>{feature.title}</Text>
+                  <Text style={styles.featureDescription}>{feature.description}</Text>
+                </View>
+              ))}
             </View>
           </View>
 
           {/* Impact Stats */}
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
-              <View style={styles.sectionIconWrapper}>
-                <Ionicons name="stats-chart" size={24} color="#10b981" />
-              </View>
               <Text style={styles.sectionTitle}>Our Impact</Text>
+              <Text style={styles.sectionSubtitle}>
+                Making a difference in farmers lives
+              </Text>
             </View>
 
-            <View style={styles.statsGrid}>
-              <View style={styles.statCard}>
-                <Text style={styles.statValue}>50K+</Text>
-                <Text style={styles.statLabel}>Active Farmers</Text>
+            <View style={styles.impactStats}>
+              <View style={styles.impactStat}>
+                <Text style={styles.impactNumber}>50,000+</Text>
+                <Text style={styles.impactLabel}>Active Farmers</Text>
               </View>
-              <View style={styles.statCard}>
-                <Text style={styles.statValue}>40%</Text>
-                <Text style={styles.statLabel}>Yield Increase</Text>
+              <View style={styles.impactStat}>
+                <Text style={styles.impactNumber}>40%</Text>
+                <Text style={styles.impactLabel}>Average Yield Increase</Text>
               </View>
-              <View style={styles.statCard}>
-                <Text style={styles.statValue}>95%</Text>
-                <Text style={styles.statLabel}>Satisfaction</Text>
+              <View style={styles.impactStat}>
+                <Text style={styles.impactNumber}>200+</Text>
+                <Text style={styles.impactLabel}>Communities Served</Text>
               </View>
-              <View style={styles.statCard}>
-                <Text style={styles.statValue}>200+</Text>
-                <Text style={styles.statLabel}>Communities</Text>
+              <View style={styles.impactStat}>
+                <Text style={styles.impactNumber}>95%</Text>
+                <Text style={styles.impactLabel}>Farmer Satisfaction</Text>
               </View>
             </View>
           </View>
 
-          {/* What We Offer */}
+          {/* Team Section */}
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
-              <View style={styles.sectionIconWrapper}>
-                <Ionicons name="gift" size={24} color="#10b981" />
-              </View>
-              <Text style={styles.sectionTitle}>What We Offer</Text>
+              <Text style={styles.sectionTitle}>Our Team</Text>
+              <Text style={styles.sectionSubtitle}>
+                Passionate experts driving change
+              </Text>
             </View>
 
-            <View style={styles.offerCard}>
-              <View style={styles.offerIcon}>
-                <MaterialCommunityIcons name="weather-partly-cloudy" size={24} color="#10b981" />
-              </View>
-              <View style={styles.offerContent}>
-                <Text style={styles.offerTitle}>Smart Weather Insights</Text>
-                <Text style={styles.offerDescription}>
-                  Real-time forecasts and planting recommendations
-                </Text>
-              </View>
+            <ScrollView 
+              horizontal 
+              showsHorizontalScrollIndicator={false}
+              style={styles.teamScroll}
+              contentContainerStyle={styles.teamScrollContent}
+            >
+              {teamMembers.map((member) => (
+                <View key={member.id} style={styles.teamCard}>
+                  <Text style={styles.teamAvatar}>{member.avatar}</Text>
+                  <Text style={styles.teamName}>{member.name}</Text>
+                  <Text style={styles.teamRole}>{member.role}</Text>
+                  <Text style={styles.teamDescription}>{member.description}</Text>
+                </View>
+              ))}
+            </ScrollView>
+          </View>
+
+          {/* Technology Stack */}
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>Technology</Text>
+              <Text style={styles.sectionSubtitle}>
+                Powered by cutting-edge solutions
+              </Text>
             </View>
 
-            <View style={styles.offerCard}>
-              <View style={styles.offerIcon}>
-                <MaterialCommunityIcons name="shopping" size={24} color="#10b981" />
+            <View style={styles.techGrid}>
+              <View style={styles.techItem}>
+                <View style={styles.techIcon}>
+                  <Ionicons name="cloud" size={24} color="#60A5FA" />
+                </View>
+                <Text style={styles.techTitle}>AI & Machine Learning</Text>
+                <Text style={styles.techDescription}>Smart crop predictions</Text>
               </View>
-              <View style={styles.offerContent}>
-                <Text style={styles.offerTitle}>Digital Marketplace</Text>
-                <Text style={styles.offerDescription}>
-                  Connect directly with buyers and get fair prices
-                </Text>
-              </View>
-            </View>
 
-            <View style={styles.offerCard}>
-              <View style={styles.offerIcon}>
-                <MaterialCommunityIcons name="school" size={24} color="#10b981" />
+              <View style={styles.techItem}>
+                <View style={styles.techIcon}>
+                  <Ionicons name="phone-portrait" size={24} color="#00FF88" />
+                </View>
+                <Text style={styles.techTitle}>Mobile First</Text>
+                <Text style={styles.techDescription}>Accessible anywhere</Text>
               </View>
-              <View style={styles.offerContent}>
-                <Text style={styles.offerTitle}>Expert Knowledge</Text>
-                <Text style={styles.offerDescription}>
-                  Access farming tips, guides, and video tutorials
-                </Text>
-              </View>
-            </View>
 
-            <View style={styles.offerCard}>
-              <View style={styles.offerIcon}>
-                <MaterialCommunityIcons name="account-group" size={24} color="#10b981" />
+              <View style={styles.techItem}>
+                <View style={styles.techIcon}>
+                  <MaterialCommunityIcons name="satellite-variant" size={24} color="#FCD34D" />
+                </View>
+                <Text style={styles.techTitle}>Satellite Data</Text>
+                <Text style={styles.techDescription}>Precision agriculture</Text>
               </View>
-              <View style={styles.offerContent}>
-                <Text style={styles.offerTitle}>Community Network</Text>
-                <Text style={styles.offerDescription}>
-                  Join thousands of farmers sharing knowledge
-                </Text>
+
+              <View style={styles.techItem}>
+                <View style={styles.techIcon}>
+                  <FontAwesome5 name="robot" size={20} color="#D8BFD8" />
+                </View>
+                <Text style={styles.techTitle}>AURA AI</Text>
+                <Text style={styles.techDescription}>24/7 Assistance</Text>
               </View>
             </View>
           </View>
 
           {/* CTA Section */}
-          <View style={styles.ctaSection}>
+          <View style={styles.section}>
             <View style={styles.ctaCard}>
-              <Text style={styles.ctaTitle}>Ready to Join?</Text>
-              <Text style={styles.ctaDescription}>
-                Become part of Africas fastest-growing farming community
-              </Text>
-              <TouchableOpacity
-                style={styles.ctaButton}
-                onPress={() => router.push("/SignUp")}
-              >
-                <Text style={styles.ctaButtonText}>Join Our Network</Text>
-                <Ionicons name="arrow-forward" size={20} color="#fff" />
-              </TouchableOpacity>
+              <View style={styles.ctaContent}>
+                <Text style={styles.ctaTitle}>Join the Revolution</Text>
+                <Text style={styles.ctaDescription}>
+                  Be part of Africas agricultural transformation. Start your journey with UmuhinziHub today.
+                </Text>
+                
+                <View style={styles.ctaButtons}>
+                  <TouchableOpacity
+                    style={styles.primaryButton}
+                    onPress={() => router.push("/SignUp")}
+                  >
+                    <Text style={styles.primaryButtonText}>Get Started</Text>
+                    <Ionicons name="arrow-forward" size={18} color="#0E1410" />
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={styles.secondaryButton}
+                    onPress={() => router.push("/tips")}
+                  >
+                    <Text style={styles.secondaryButtonText}>Learn More</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
             </View>
           </View>
 
-          {/* Contact Info */}
+          {/* Contact Section */}
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
-              <View style={styles.sectionIconWrapper}>
-                <Ionicons name="mail" size={24} color="#10b981" />
-              </View>
               <Text style={styles.sectionTitle}>Get In Touch</Text>
+              <Text style={styles.sectionSubtitle}>
+                Wed love to hear from you
+              </Text>
             </View>
 
-            <View style={styles.contactCard}>
-              <TouchableOpacity style={styles.contactItem}>
-                <View style={styles.contactIconWrapper}>
-                  <Ionicons name="mail-outline" size={20} color="#10b981" />
+            <View style={styles.contactGrid}>
+              <TouchableOpacity 
+                style={styles.contactItem}
+                onPress={() => openLink('mailto:info@umuhinzihub.rw')}
+              >
+                <View style={[styles.contactIcon, { backgroundColor: 'rgba(0, 255, 136, 0.2)' }]}>
+                  <Ionicons name="mail" size={20} color="#00FF88" />
                 </View>
-                <Text style={styles.contactText}>info@umuhinzihub.rw</Text>
+                <Text style={styles.contactTitle}>Email</Text>
+                <Text style={styles.contactValue}>info@umuhinzihub.rw</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity style={styles.contactItem}>
-                <View style={styles.contactIconWrapper}>
-                  <Ionicons name="call-outline" size={20} color="#10b981" />
+              <TouchableOpacity 
+                style={styles.contactItem}
+                onPress={() => openLink('tel:+250788123456')}
+              >
+                <View style={[styles.contactIcon, { backgroundColor: 'rgba(96, 165, 250, 0.2)' }]}>
+                  <Ionicons name="call" size={20} color="#60A5FA" />
                 </View>
-                <Text style={styles.contactText}>+250 788 123 456</Text>
+                <Text style={styles.contactTitle}>Phone</Text>
+                <Text style={styles.contactValue}>+250 788 123 456</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity style={styles.contactItem}>
-                <View style={styles.contactIconWrapper}>
-                  <Ionicons name="location-outline" size={20} color="#10b981" />
+              <TouchableOpacity 
+                style={styles.contactItem}
+                onPress={() => openLink('https://maps.google.com/?q=Kigali,Rwanda')}
+              >
+                <View style={[styles.contactIcon, { backgroundColor: 'rgba(252, 211, 77, 0.2)' }]}>
+                  <Ionicons name="location" size={20} color="#FCD34D" />
                 </View>
-                <Text style={styles.contactText}>Kigali, Rwanda</Text>
+                <Text style={styles.contactTitle}>Location</Text>
+                <Text style={styles.contactValue}>Kigali, Rwanda</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                style={styles.contactItem}
+                onPress={() => openLink('https://wa.me/250788123456')}
+              >
+                <View style={[styles.contactIcon, { backgroundColor: 'rgba(37, 211, 102, 0.2)' }]}>
+                  <Ionicons name="logo-whatsapp" size={20} color="#25D366" />
+                </View>
+                <Text style={styles.contactTitle}>WhatsApp</Text>
+                <Text style={styles.contactValue}>Chat with us</Text>
               </TouchableOpacity>
             </View>
           </View>
 
           {/* Footer */}
           <View style={styles.footer}>
-            <View style={styles.footerLogo}>
-              <View style={styles.logoIcon}>
-                <Ionicons name="leaf" size={24} color="#0a0e14" />
+            <View style={styles.footerContent}>
+              <View style={styles.footerLogo}>
+                <View style={styles.logoIcon}>
+                  <Ionicons name="leaf" size={24} color="#0E1410" />
+                </View>
+                <Text style={styles.logoText}>UmuhinziHub</Text>
               </View>
-              <Text style={styles.logoText}>UmuhinziHub</Text>
-            </View>
+              
+              <Text style={styles.footerTagline}>
+                Empowering African farmers through technology and innovation.
+              </Text>
 
-            <View style={styles.socialIcons}>
-              <TouchableOpacity style={styles.socialButton}>
-                <Ionicons name="logo-whatsapp" size={24} color="#94a3b8" />
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.socialButton}>
-                <Ionicons name="logo-facebook" size={24} color="#94a3b8" />
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.socialButton}>
-                <Ionicons name="logo-twitter" size={24} color="#94a3b8" />
-              </TouchableOpacity>
-            </View>
+              <View style={styles.socialLinks}>
+                <TouchableOpacity 
+                  style={styles.socialLink}
+                  onPress={() => openLink('https://facebook.com/umuhinzihub')}
+                >
+                  <Ionicons name="logo-facebook" size={20} color="#00FF88" />
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  style={styles.socialLink}
+                  onPress={() => openLink('https://twitter.com/umuhinzihub')}
+                >
+                  <Ionicons name="logo-twitter" size={20} color="#00FF88" />
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  style={styles.socialLink}
+                  onPress={() => openLink('https://instagram.com/umuhinzihub')}
+                >
+                  <Ionicons name="logo-instagram" size={20} color="#00FF88" />
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  style={styles.socialLink}
+                  onPress={() => openLink('https://linkedin.com/company/umuhinzihub')}
+                >
+                  <Ionicons name="logo-linkedin" size={20} color="#00FF88" />
+                </TouchableOpacity>
+              </View>
 
-            <Text style={styles.footerText}>
-              © 2024 UmuhinziHub. All rights reserved.
-            </Text>
-            <Text style={styles.footerSubtext}>
-              Made with 💚 for Rwandan Farmers
-            </Text>
+              <View style={styles.footerLinks}>
+                <TouchableOpacity onPress={() => router.push('/privacy')}>
+                  <Text style={styles.footerLink}>Privacy Policy</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => router.push('/terms')}>
+                  <Text style={styles.footerLink}>Terms of Service</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => router.push('/support')}>
+                  <Text style={styles.footerLink}>Support</Text>
+                </TouchableOpacity>
+              </View>
+
+              <Text style={styles.copyright}>
+                © 2024 UmuhinziHub. All rights reserved.{"\n"}
+                Made with ❤️ for African Farmers
+              </Text>
+            </View>
           </View>
         </Animated.View>
       </ScrollView>
@@ -334,7 +519,7 @@ export default function ModernAboutScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#0a0e14",
+    backgroundColor: "#0E1410",
   },
   backgroundOverlay: {
     position: "absolute",
@@ -342,7 +527,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    opacity: 0.1,
   },
   floatingOrb: {
     position: "absolute",
@@ -350,356 +534,484 @@ const styles = StyleSheet.create({
   },
   orb1: {
     top: "10%",
-    right: "10%",
+    right: "-10%",
     width: 200,
     height: 200,
-    backgroundColor: "#10b981",
-    opacity: 0.3,
+    backgroundColor: "#00FF88",
+    opacity: 0.1,
   },
   orb2: {
-    bottom: "20%",
-    left: "10%",
+    top: "40%",
+    left: "-10%",
     width: 250,
     height: 250,
-    backgroundColor: "#06b6d4",
-    opacity: 0.2,
+    backgroundColor: "#60A5FA",
+    opacity: 0.08,
+  },
+  orb3: {
+    bottom: "20%",
+    right: "20%",
+    width: 150,
+    height: 150,
+    backgroundColor: "#FCD34D",
+    opacity: 0.06,
   },
   container: {
     flexGrow: 1,
-    paddingBottom: 30,
+    paddingBottom: 20,
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    backgroundColor: "rgba(15, 23, 42, 0.5)",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: "rgba(14, 20, 16, 0.95)",
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(100, 116, 139, 0.2)",
+    borderBottomColor: "#1E3A2E",
   },
   backButton: {
-    backgroundColor: "rgba(16, 185, 129, 0.1)",
-    padding: 8,
-    borderRadius: 10,
+    padding: 6,
+    backgroundColor: "rgba(0, 255, 136, 0.1)",
+    borderRadius: 8,
   },
   headerTitle: {
     color: "#fff",
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "bold",
   },
   shareButton: {
-    backgroundColor: "rgba(16, 185, 129, 0.1)",
-    padding: 8,
-    borderRadius: 10,
+    padding: 6,
+    backgroundColor: "rgba(0, 255, 136, 0.1)",
+    borderRadius: 8,
   },
   heroSection: {
-    paddingHorizontal: 20,
-    marginTop: 20,
-    marginBottom: 10,
-  },
-  heroImageContainer: {
-    position: "relative",
-    borderRadius: 20,
-    overflow: "hidden",
-    marginBottom: 16,
-  },
-  heroImage: {
-    width: "100%",
-    height: 200,
-    resizeMode: "cover",
-  },
-  heroOverlay: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.3)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  logoIconLarge: {
-    backgroundColor: "#10b981",
     padding: 20,
-    borderRadius: 20,
+    paddingTop: 30,
+  },
+  heroContent: {
+    alignItems: "center",
   },
   heroBadge: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(16, 185, 129, 0.1)",
-    alignSelf: "center",
-    paddingVertical: 8,
+    backgroundColor: "rgba(0, 255, 136, 0.1)",
     paddingHorizontal: 16,
+    paddingVertical: 8,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: "rgba(16, 185, 129, 0.3)",
+    borderColor: "rgba(0, 255, 136, 0.3)",
+    marginBottom: 20,
   },
   heroBadgeText: {
-    color: "#10b981",
+    color: "#00FF88",
     fontSize: 14,
     fontWeight: "600",
-    marginLeft: 8,
+    marginLeft: 6,
+  },
+  heroTitle: {
+    color: "#fff",
+    fontSize: 28,
+    fontWeight: "bold",
+    textAlign: "center",
+    lineHeight: 34,
+    marginBottom: 12,
+  },
+  heroTitleHighlight: {
+    color: "#00FF88",
+  },
+  heroDescription: {
+    color: "#A7F3D0",
+    fontSize: 16,
+    textAlign: "center",
+    lineHeight: 24,
+    marginBottom: 24,
+  },
+  heroStats: {
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 30,
+  },
+  heroStat: {
+    alignItems: "center",
+  },
+  heroStatNumber: {
+    color: "#00FF88",
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 4,
+  },
+  heroStatLabel: {
+    color: "#A7F3D0",
+    fontSize: 12,
   },
   section: {
-    paddingHorizontal: 20,
-    marginTop: 30,
+    padding: 20,
+    marginTop: 10,
   },
   sectionHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 16,
-  },
-  sectionIconWrapper: {
-    backgroundColor: "rgba(16, 185, 129, 0.1)",
-    padding: 8,
-    borderRadius: 10,
-    marginRight: 12,
+    marginBottom: 20,
   },
   sectionTitle: {
     color: "#fff",
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: "bold",
+    marginBottom: 6,
   },
-  paragraph: {
-    color: "#94a3b8",
+  sectionSubtitle: {
+    color: "#A7F3D0",
     fontSize: 15,
-    lineHeight: 24,
   },
-  brandName: {
-    color: "#10b981",
-    fontWeight: "700",
+  purposeGrid: {
+    gap: 16,
   },
-  cardGrid: {
-    paddingHorizontal: 20,
-    marginTop: 30,
-  },
-  missionCard: {
-    backgroundColor: "rgba(16, 185, 129, 0.05)",
+  purposeCard: {
+    backgroundColor: "#1E261E",
+    borderRadius: 16,
+    padding: 20,
     borderWidth: 1,
-    borderColor: "rgba(16, 185, 129, 0.2)",
-    borderRadius: 20,
-    padding: 24,
-    marginBottom: 16,
+    borderColor: "#2D4A3A",
   },
-  visionCard: {
-    backgroundColor: "rgba(6, 182, 212, 0.05)",
-    borderWidth: 1,
-    borderColor: "rgba(6, 182, 212, 0.2)",
-    borderRadius: 20,
-    padding: 24,
-  },
-  cardIconContainer: {
-    backgroundColor: "rgba(16, 185, 129, 0.1)",
+  purposeIcon: {
+    backgroundColor: "rgba(0, 255, 136, 0.1)",
     padding: 12,
     borderRadius: 12,
     alignSelf: "flex-start",
     marginBottom: 12,
   },
-  cardTitle: {
+  purposeTitle: {
     color: "#fff",
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "bold",
-    marginBottom: 10,
+    marginBottom: 8,
   },
-  cardDescription: {
-    color: "#94a3b8",
+  purposeDescription: {
+    color: "#A7F3D0",
     fontSize: 14,
-    lineHeight: 22,
+    lineHeight: 20,
   },
   valuesGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
+    gap: 12,
   },
-  valueCard: {
-    width: "48%",
-    backgroundColor: "rgba(30, 41, 59, 0.5)",
+  valueItem: {
+    width: (screenWidth - 52) / 2,
+    backgroundColor: "#1E261E",
+    borderRadius: 12,
+    padding: 16,
+    alignItems: "center",
     borderWidth: 1,
-    borderColor: "rgba(71, 85, 105, 0.5)",
-    borderRadius: 16,
-    padding: 20,
+    borderColor: "#2D4A3A",
+  },
+  valueIcon: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: "center",
     alignItems: "center",
     marginBottom: 12,
   },
   valueTitle: {
     color: "#fff",
-    fontSize: 14,
-    fontWeight: "600",
-    marginTop: 10,
+    fontSize: 15,
+    fontWeight: "bold",
+    marginBottom: 4,
     textAlign: "center",
   },
-  statsGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-  },
-  statCard: {
-    width: "48%",
-    backgroundColor: "rgba(16, 185, 129, 0.05)",
-    borderWidth: 1,
-    borderColor: "rgba(16, 185, 129, 0.2)",
-    borderRadius: 16,
-    padding: 20,
-    alignItems: "center",
-    marginBottom: 12,
-  },
-  statValue: {
-    color: "#10b981",
-    fontSize: 32,
-    fontWeight: "900",
-    marginBottom: 4,
-  },
-  statLabel: {
-    color: "#94a3b8",
+  valueDescription: {
+    color: "#A7F3D0",
     fontSize: 12,
     textAlign: "center",
   },
-  offerCard: {
+  featuresGrid: {
     flexDirection: "row",
-    backgroundColor: "rgba(30, 41, 59, 0.5)",
-    borderWidth: 1,
-    borderColor: "rgba(71, 85, 105, 0.5)",
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 12,
-    alignItems: "center",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    gap: 12,
   },
-  offerIcon: {
-    backgroundColor: "rgba(16, 185, 129, 0.1)",
+  featureCard: {
+    width: (screenWidth - 52) / 2,
+    backgroundColor: "#1E261E",
+    borderRadius: 12,
+    padding: 16,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#2D4A3A",
+  },
+  featureIcon: {
+    backgroundColor: "rgba(0, 255, 136, 0.1)",
     padding: 12,
     borderRadius: 12,
-    marginRight: 16,
+    marginBottom: 12,
   },
-  offerContent: {
-    flex: 1,
-  },
-  offerTitle: {
+  featureTitle: {
     color: "#fff",
-    fontSize: 16,
+    fontSize: 14,
+    fontWeight: "bold",
+    marginBottom: 6,
+    textAlign: "center",
+  },
+  featureDescription: {
+    color: "#A7F3D0",
+    fontSize: 11,
+    textAlign: "center",
+    lineHeight: 14,
+  },
+  impactStats: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    gap: 12,
+  },
+  impactStat: {
+    width: (screenWidth - 52) / 2,
+    backgroundColor: "rgba(0, 255, 136, 0.05)",
+    borderRadius: 12,
+    padding: 20,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "rgba(0, 255, 136, 0.1)",
+  },
+  impactNumber: {
+    color: "#00FF88",
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 6,
+  },
+  impactLabel: {
+    color: "#A7F3D0",
+    fontSize: 12,
+    textAlign: "center",
+  },
+  teamScroll: {
+    marginHorizontal: -20,
+  },
+  teamScrollContent: {
+    paddingHorizontal: 20,
+    gap: 12,
+  },
+  teamCard: {
+    width: 140,
+    backgroundColor: "#1E261E",
+    borderRadius: 12,
+    padding: 16,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#2D4A3A",
+  },
+  teamAvatar: {
+    fontSize: 32,
+    marginBottom: 8,
+  },
+  teamName: {
+    color: "#fff",
+    fontSize: 15,
     fontWeight: "bold",
     marginBottom: 4,
+    textAlign: "center",
   },
-  offerDescription: {
-    color: "#94a3b8",
-    fontSize: 13,
-    lineHeight: 20,
+  teamRole: {
+    color: "#00FF88",
+    fontSize: 12,
+    fontWeight: "600",
+    marginBottom: 4,
+    textAlign: "center",
   },
-  ctaSection: {
-    paddingHorizontal: 20,
-    marginTop: 30,
+  teamDescription: {
+    color: "#A7F3D0",
+    fontSize: 10,
+    textAlign: "center",
+  },
+  techGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    gap: 12,
+  },
+  techItem: {
+    width: (screenWidth - 52) / 2,
+    backgroundColor: "#1E261E",
+    borderRadius: 12,
+    padding: 16,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#2D4A3A",
+  },
+  techIcon: {
+    backgroundColor: "rgba(0, 255, 136, 0.1)",
+    padding: 12,
+    borderRadius: 12,
+    marginBottom: 12,
+  },
+  techTitle: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "bold",
+    marginBottom: 4,
+    textAlign: "center",
+  },
+  techDescription: {
+    color: "#A7F3D0",
+    fontSize: 11,
+    textAlign: "center",
   },
   ctaCard: {
-    backgroundColor: "rgba(16, 185, 129, 0.1)",
+    backgroundColor: "rgba(0, 255, 136, 0.1)",
+    borderRadius: 20,
+    padding: 30,
     borderWidth: 1,
-    borderColor: "rgba(16, 185, 129, 0.3)",
-    borderRadius: 24,
-    padding: 32,
+    borderColor: "rgba(0, 255, 136, 0.2)",
+  },
+  ctaContent: {
     alignItems: "center",
   },
   ctaTitle: {
     color: "#fff",
-    fontSize: 28,
-    fontWeight: "900",
-    marginBottom: 10,
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 8,
+    textAlign: "center",
   },
   ctaDescription: {
-    color: "#cbd5e1",
+    color: "#A7F3D0",
     fontSize: 15,
     textAlign: "center",
     marginBottom: 24,
+    lineHeight: 22,
   },
-  ctaButton: {
+  ctaButtons: {
+    flexDirection: "row",
+    gap: 12,
+    width: "100%",
+  },
+  primaryButton: {
+    flex: 2,
+    backgroundColor: "#00FF88",
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#10b981",
-    paddingVertical: 16,
-    paddingHorizontal: 32,
-    borderRadius: 16,
-    shadowColor: "#10b981",
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.4,
-    shadowRadius: 20,
-    elevation: 10,
+    justifyContent: "center",
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    gap: 8,
   },
-  ctaButtonText: {
-    color: "#fff",
+  primaryButtonText: {
+    color: "#0E1410",
     fontSize: 16,
     fontWeight: "bold",
-    marginRight: 8,
   },
-  contactCard: {
-    backgroundColor: "rgba(30, 41, 59, 0.5)",
-    borderWidth: 1,
-    borderColor: "rgba(71, 85, 105, 0.5)",
-    borderRadius: 16,
-    padding: 20,
+  secondaryButton: {
+    flex: 1,
+    backgroundColor: "transparent",
+    borderWidth: 2,
+    borderColor: "rgba(0, 255, 136, 0.3)",
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: "center",
+  },
+  secondaryButtonText: {
+    color: "#00FF88",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  contactGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    gap: 12,
   },
   contactItem: {
-    flexDirection: "row",
+    width: (screenWidth - 52) / 2,
+    backgroundColor: "#1E261E",
+    borderRadius: 12,
+    padding: 16,
     alignItems: "center",
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(71, 85, 105, 0.3)",
+    borderWidth: 1,
+    borderColor: "#2D4A3A",
   },
-  contactIconWrapper: {
-    backgroundColor: "rgba(16, 185, 129, 0.1)",
-    padding: 8,
-    borderRadius: 8,
-    marginRight: 12,
+  contactIcon: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 12,
   },
-  contactText: {
-    color: "#cbd5e1",
+  contactTitle: {
+    color: "#fff",
     fontSize: 14,
+    fontWeight: "bold",
+    marginBottom: 4,
+  },
+  contactValue: {
+    color: "#A7F3D0",
+    fontSize: 12,
+    textAlign: "center",
   },
   footer: {
-    alignItems: "center",
-    marginTop: 40,
-    paddingTop: 30,
     borderTopWidth: 1,
-    borderTopColor: "rgba(51, 65, 85, 1)",
-    paddingHorizontal: 20,
+    borderTopColor: "#2D4A3A",
+    marginTop: 30,
+    paddingTop: 30,
+  },
+  footerContent: {
+    padding: 20,
+    alignItems: "center",
   },
   footerLogo: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: 12,
   },
   logoIcon: {
-    backgroundColor: "#10b981",
+    backgroundColor: "#00FF88",
     padding: 8,
-    borderRadius: 12,
+    borderRadius: 10,
+    marginRight: 10,
   },
   logoText: {
-    color: "#10b981",
-    fontSize: 22,
+    color: "#00FF88",
+    fontSize: 20,
     fontWeight: "bold",
-    marginLeft: 10,
   },
-  socialIcons: {
+  footerTagline: {
+    color: "#A7F3D0",
+    fontSize: 14,
+    textAlign: "center",
+    marginBottom: 20,
+    lineHeight: 20,
+  },
+  socialLinks: {
     flexDirection: "row",
+    gap: 12,
     marginBottom: 20,
   },
-  socialButton: {
-    backgroundColor: "rgba(30, 41, 59, 0.5)",
-    borderWidth: 1,
-    borderColor: "rgba(71, 85, 105, 1)",
+  socialLink: {
+    backgroundColor: "rgba(0, 255, 136, 0.1)",
     width: 44,
     height: 44,
     borderRadius: 12,
     justifyContent: "center",
     alignItems: "center",
-    marginHorizontal: 6,
+    borderWidth: 1,
+    borderColor: "rgba(0, 255, 136, 0.2)",
   },
-  footerText: {
-    color: "#64748b",
-    fontSize: 13,
-    textAlign: "center",
+  footerLinks: {
+    flexDirection: "row",
+    gap: 20,
+    marginBottom: 20,
   },
-  footerSubtext: {
-    color: "#475569",
+  footerLink: {
+    color: "#00FF88",
     fontSize: 12,
-    marginTop: 6,
+    fontWeight: "600",
+  },
+  copyright: {
+    color: "#64748b",
+    fontSize: 11,
     textAlign: "center",
+    lineHeight: 16,
   },
 });

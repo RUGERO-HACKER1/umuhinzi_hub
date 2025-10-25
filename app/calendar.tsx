@@ -1,23 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
   StyleSheet,
   ScrollView,
+  Animated,
+  Alert,
+  Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 
+const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+const isSmallScreen = screenWidth < 375;
+
+// Sample data
 const tasks = [
   {
     id: '1',
-    title: 'Water Maize Field',
+    title: 'Water Maize',
     crop: 'Maize Field 1',
     type: 'watering',
-    date: '2024-06-15',
-    time: 'Morning',
+    date: new Date().toISOString().split('T')[0],
+    time: '06:00 AM',
+    duration: '2h',
     priority: 'high',
     completed: false,
   },
@@ -26,40 +34,22 @@ const tasks = [
     title: 'Fertilize Beans',
     crop: 'Beans Garden',
     type: 'fertilizing',
-    date: '2024-06-16',
-    time: 'Afternoon',
+    date: new Date().toISOString().split('T')[0],
+    time: '08:00 AM',
+    duration: '1h',
     priority: 'medium',
     completed: false,
   },
   {
     id: '3',
-    title: 'Spray for Pests',
-    crop: 'Coffee Plantation',
-    type: 'spraying',
-    date: '2024-06-17',
-    time: 'Morning',
-    priority: 'high',
-    completed: false,
-  },
-  {
-    id: '4',
-    title: 'Weed Vegetable Patch',
+    title: 'Weed Patch',
     crop: 'Vegetable Patch',
     type: 'weeding',
-    date: '2024-06-18',
-    time: 'Morning',
+    date: new Date(Date.now() + 86400000).toISOString().split('T')[0],
+    time: '07:00 AM',
+    duration: '2h',
     priority: 'low',
     completed: true,
-  },
-  {
-    id: '5',
-    title: 'Soil Testing',
-    crop: 'All Fields',
-    type: 'testing',
-    date: '2024-06-20',
-    time: 'Afternoon',
-    priority: 'medium',
-    completed: false,
   },
 ];
 
@@ -68,142 +58,244 @@ const events = [
     id: '1',
     title: 'Market Day',
     type: 'market',
-    date: '2024-06-22',
+    date: new Date(Date.now() + 86400000).toISOString().split('T')[0],
+    time: '08:00 AM',
+    location: 'Town Market',
     description: 'Weekly produce market',
   },
+];
+
+const cropSchedules = [
   {
-    id: '2',
-    title: 'Farming Workshop',
-    type: 'workshop',
-    date: '2024-06-25',
-    description: 'Organic farming techniques',
+    crop: 'Maize',
+    stage: 'Vegetative',
+    tasks: ['Weeding', 'Fertilizer', 'Pest check'],
+    nextStage: 'Tasseling soon'
   },
   {
-    id: '3',
-    title: 'Harvest Festival',
-    type: 'festival',
-    date: '2024-07-01',
-    description: 'Community harvest celebration',
-  },
+    crop: 'Beans',
+    stage: 'Flowering',
+    tasks: ['Watering', 'Support', 'Disease check'],
+    nextStage: 'Pod formation'
+  }
 ];
 
 export default function CalendarScreen() {
   const router = useRouter();
-  const [selectedDate, setSelectedDate] = useState('2024-06-15');
-  const [view, setView] = useState<'tasks' | 'events'>('tasks');
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const [view, setView] = useState<'tasks' | 'events' | 'schedule'>('tasks');
+  const [fadeAnim] = useState(new Animated.Value(0));
 
-  // Get tasks for selected date
+  useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 500,
+      useNativeDriver: true,
+    }).start();
+  }, []);
+
   const dailyTasks = tasks.filter(task => task.date === selectedDate);
   const dailyEvents = events.filter(event => event.date === selectedDate);
 
+  // Mobile-optimized week dates
+  const getWeekDates = () => {
+    const dates = [];
+    const today = new Date(selectedDate);
+    
+    for (let i = -3; i <= 3; i++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() + i);
+      dates.push({
+        date: date.toISOString().split('T')[0],
+        day: date.toLocaleDateString('en-US', { weekday: 'short' }).substring(0, 2),
+        number: date.getDate().toString(),
+        isToday: date.toDateString() === new Date().toDateString(),
+      });
+    }
+    return dates;
+  };
+
+  const weekDates = getWeekDates();
+
   const toggleTaskCompletion = (taskId: string) => {
-    // In real app, update task completion status
-    console.log('Toggle task:', taskId);
+    Alert.alert(
+      'Mark as completed?',
+      'This will mark the task as done.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Mark Complete', onPress: () => {} },
+      ]
+    );
   };
 
   const getTaskIcon = (type: string) => {
-    switch (type) {
-      case 'watering': return '💧';
-      case 'fertilizing': return '🌱';
-      case 'spraying': return '🧪';
-      case 'weeding': return '🌿';
-      case 'testing': return '🔬';
-      default: return '📅';
-    }
+    const icons = {
+      watering: '💧',
+      fertilizing: '🌱',
+      spraying: '🧪',
+      weeding: '🌿',
+      testing: '🔬',
+      harvesting: '📦',
+      planting: '🪴'
+    };
+    return icons[type as keyof typeof icons] || '📅';
+  };
+
+  const getTaskColor = (type: string) => {
+    const colors = {
+      watering: '#60A5FA',
+      fertilizing: '#00FF88',
+      spraying: '#FCD34D',
+      weeding: '#84CC16',
+      testing: '#D8BFD8',
+      harvesting: '#F97316',
+      planting: '#10B981'
+    };
+    return colors[type as keyof typeof colors] || '#aaa';
   };
 
   const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'high': return '#F87171';
-      case 'medium': return '#FCD34D';
-      case 'low': return '#60A5FA';
-      default: return '#aaa';
-    }
+    return priority === 'high' ? '#F87171' : 
+           priority === 'medium' ? '#FCD34D' : '#60A5FA';
   };
 
-  const getEventIcon = (type: string) => {
-    switch (type) {
-      case 'market': return '🛒';
-      case 'workshop': return '📚';
-      case 'festival': return '🎉';
-      default: return '📅';
-    }
-  };
+  const TaskItem = ({ task }: { task: any }) => (
+    <TouchableOpacity 
+      style={styles.taskItem}
+      onPress={() => toggleTaskCompletion(task.id)}
+    >
+      <View style={[styles.taskIcon, { backgroundColor: `${getTaskColor(task.type)}20` }]}>
+        <Text style={styles.taskIconText}>{getTaskIcon(task.type)}</Text>
+      </View>
+      
+      <View style={styles.taskContent}>
+        <View style={styles.taskHeader}>
+          <Text style={styles.taskTitle} numberOfLines={1}>{task.title}</Text>
+          <View style={[styles.priorityDot, { backgroundColor: getPriorityColor(task.priority) }]} />
+        </View>
+        <Text style={styles.taskCrop} numberOfLines={1}>{task.crop}</Text>
+        <View style={styles.taskMeta}>
+          <Text style={styles.taskTime}>{task.time}</Text>
+          <Text style={styles.taskDuration}>• {task.duration}</Text>
+        </View>
+      </View>
 
-  const getEventColor = (type: string) => {
-    switch (type) {
-      case 'market': return '#00FF88';
-      case 'workshop': return '#60A5FA';
-      case 'festival': return '#FCD34D';
-      default: return '#aaa';
-    }
-  };
+      <TouchableOpacity 
+        style={[styles.checkbox, task.completed && styles.checkboxChecked]}
+        onPress={() => toggleTaskCompletion(task.id)}
+      >
+        {task.completed && <Ionicons name="checkmark" size={14} color="#0E1410" />}
+      </TouchableOpacity>
+    </TouchableOpacity>
+  );
 
-  // Sample calendar dates for the current week
-  const weekDates = [
-    { date: '2024-06-15', day: 'Sat', number: '15' },
-    { date: '2024-06-16', day: 'Sun', number: '16' },
-    { date: '2024-06-17', day: 'Mon', number: '17' },
-    { date: '2024-06-18', day: 'Tue', number: '18' },
-    { date: '2024-06-19', day: 'Wed', number: '19' },
-    { date: '2024-06-20', day: 'Thu', number: '20' },
-    { date: '2024-06-21', day: 'Fri', number: '21' },
-  ];
+  const EventItem = ({ event }: { event: any }) => (
+    <View style={styles.eventItem}>
+      <View style={[styles.eventIcon, { backgroundColor: 'rgba(0, 255, 136, 0.2)' }]}>
+        <Text style={styles.eventIconText}>🛒</Text>
+      </View>
+      
+      <View style={styles.eventContent}>
+        <Text style={styles.eventTitle} numberOfLines={1}>{event.title}</Text>
+        <Text style={styles.eventDescription} numberOfLines={1}>{event.description}</Text>
+        <View style={styles.eventMeta}>
+          <Ionicons name="time" size={10} color="#aaa" />
+          <Text style={styles.eventTime}>{event.time}</Text>
+        </View>
+      </View>
+    </View>
+  );
+
+  const CropScheduleItem = ({ schedule }: { schedule: any }) => (
+    <View style={styles.cropScheduleItem}>
+      <View style={styles.cropHeader}>
+        <Text style={styles.cropName}>{schedule.crop}</Text>
+        <View style={styles.stageBadge}>
+          <Text style={styles.stageText}>{schedule.stage}</Text>
+        </View>
+      </View>
+      <Text style={styles.nextStage}>Next: {schedule.nextStage}</Text>
+      <View style={styles.tasksList}>
+        {schedule.tasks.slice(0, 2).map((task: string, index: number) => (
+          <View key={index} style={styles.cropTask}>
+            <Ionicons name="checkmark-circle" size={12} color="#00FF88" />
+            <Text style={styles.cropTaskText} numberOfLines={1}>{task}</Text>
+          </View>
+        ))}
+      </View>
+    </View>
+  );
 
   return (
     <SafeAreaView style={styles.safeArea}>
+      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="#00FF88" />
+          <Ionicons name="arrow-back" size={22} color="#00FF88" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Farming Calendar</Text>
-        <TouchableOpacity onPress={() => router.push('/activities/new')}>
-          <Ionicons name="add" size={24} color="#00FF88" />
+        <Text style={styles.headerTitle}>Calendar</Text>
+        <TouchableOpacity 
+          style={styles.addButton}
+          onPress={() => router.push('/activities/new')}
+        >
+          <Ionicons name="add" size={22} color="#00FF88" />
         </TouchableOpacity>
       </View>
 
-      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-        {/* Week View */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>This Week</Text>
-          <View style={styles.weekView}>
-            {weekDates.map((day) => (
-              <TouchableOpacity
-                key={day.date}
-                style={[
-                  styles.dayButton,
-                  selectedDate === day.date && styles.dayButtonSelected,
-                ]}
-                onPress={() => setSelectedDate(day.date)}
-              >
-                <Text style={[
-                  styles.dayText,
-                  selectedDate === day.date && styles.dayTextSelected,
-                ]}>
-                  {day.day}
-                </Text>
-                <Text style={[
-                  styles.dateNumber,
-                  selectedDate === day.date && styles.dateNumberSelected,
-                ]}>
-                  {day.number}
-                </Text>
-                
-                {/* Task indicators */}
-                <View style={styles.taskIndicators}>
-                  {tasks.filter(task => task.date === day.date && !task.completed).length > 0 && (
-                    <View style={styles.pendingIndicator} />
-                  )}
-                  {tasks.filter(task => task.date === day.date && task.completed).length > 0 && (
-                    <View style={styles.completedIndicator} />
-                  )}
-                </View>
-              </TouchableOpacity>
-            ))}
-          </View>
+      <ScrollView 
+        style={styles.container}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.contentContainer}
+      >
+        {/* Week Calendar */}
+        <View style={styles.weekCard}>
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.weekScrollContent}
+          >
+            {weekDates.map((day) => {
+              const dayTasks = tasks.filter(task => task.date === day.date);
+              const hasTasks = dayTasks.length > 0;
+              const hasHighPriority = dayTasks.some(task => task.priority === 'high' && !task.completed);
+              
+              return (
+                <TouchableOpacity
+                  key={day.date}
+                  style={[
+                    styles.dayButton,
+                    selectedDate === day.date && styles.dayButtonSelected,
+                    day.isToday && styles.dayButtonToday,
+                  ]}
+                  onPress={() => setSelectedDate(day.date)}
+                >
+                  <Text style={[
+                    styles.dayText,
+                    selectedDate === day.date && styles.dayTextSelected,
+                    day.isToday && styles.dayTextToday,
+                  ]}>
+                    {day.day}
+                  </Text>
+                  <Text style={[
+                    styles.dateNumber,
+                    selectedDate === day.date && styles.dateNumberSelected,
+                    day.isToday && styles.dateNumberToday,
+                  ]}>
+                    {day.number}
+                  </Text>
+                  
+                  {/* Task indicators */}
+                  <View style={styles.taskIndicators}>
+                    {hasHighPriority && <View style={styles.highPriorityIndicator} />}
+                    {hasTasks && !hasHighPriority && <View style={styles.taskIndicator} />}
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
         </View>
 
-        {/* View Toggle */}
+        {/* View Toggle - Simplified for mobile */}
         <View style={styles.viewToggle}>
           <TouchableOpacity
             style={[
@@ -212,13 +304,19 @@ export default function CalendarScreen() {
             ]}
             onPress={() => setView('tasks')}
           >
+            <Ionicons 
+              name="list" 
+              size={16} 
+              color={view === 'tasks' ? '#0E1410' : '#aaa'} 
+            />
             <Text style={[
               styles.toggleText,
               view === 'tasks' && styles.toggleTextActive,
             ]}>
-              Tasks ({dailyTasks.length})
+              Tasks
             </Text>
           </TouchableOpacity>
+
           <TouchableOpacity
             style={[
               styles.toggleButton,
@@ -226,177 +324,171 @@ export default function CalendarScreen() {
             ]}
             onPress={() => setView('events')}
           >
+            <Ionicons 
+              name="calendar" 
+              size={16} 
+              color={view === 'events' ? '#0E1410' : '#aaa'} 
+            />
             <Text style={[
               styles.toggleText,
               view === 'events' && styles.toggleTextActive,
             ]}>
-              Events ({dailyEvents.length})
+              Events
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.toggleButton,
+              view === 'schedule' && styles.toggleButtonActive,
+            ]}
+            onPress={() => setView('schedule')}
+          >
+            <Ionicons 
+              name="leaf" 
+              size={16} 
+              color={view === 'schedule' ? '#0E1410' : '#aaa'} 
+            />
+            <Text style={[
+              styles.toggleText,
+              view === 'schedule' && styles.toggleTextActive,
+            ]}>
+              Crops
             </Text>
           </TouchableOpacity>
         </View>
 
+        {/* Selected Date Header */}
+        <View style={styles.dateHeader}>
+          <Text style={styles.dateTitle}>
+            {new Date(selectedDate).toLocaleDateString('en-US', { 
+              weekday: 'long', 
+              month: 'short', 
+              day: 'numeric' 
+            })}
+          </Text>
+          <Text style={styles.dateSubtitle}>
+            {view === 'tasks' && `${dailyTasks.length} tasks`}
+            {view === 'events' && `${dailyEvents.length} events`}
+            {view === 'schedule' && 'Crop schedule'}
+          </Text>
+        </View>
+
         {/* Tasks View */}
         {view === 'tasks' && (
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>
-                Tasks for {new Date(selectedDate).toLocaleDateString()}
-              </Text>
-              <Text style={styles.sectionSubtitle}>
-                {dailyTasks.filter(t => !t.completed).length} pending, {dailyTasks.filter(t => t.completed).length} completed
-              </Text>
-            </View>
-
+          <View style={styles.contentSection}>
             {dailyTasks.length === 0 ? (
               <View style={styles.emptyState}>
-                <Ionicons name="checkmark-done" size={48} color="#666" />
-                <Text style={styles.emptyTitle}>No Tasks Scheduled</Text>
+                <Ionicons name="checkmark-done" size={48} color="#2D4A3A" />
+                <Text style={styles.emptyTitle}>No Tasks Today</Text>
                 <Text style={styles.emptyDescription}>
-                  Youre all caught up for this day! Add new tasks to stay organized.
+                  All caught up! Add new tasks to stay organized.
                 </Text>
                 <TouchableOpacity 
                   style={styles.primaryButton}
                   onPress={() => router.push('/activities/new')}
                 >
-                  <Ionicons name="add" size={20} color="#0E1410" />
+                  <Ionicons name="add" size={16} color="#0E1410" />
                   <Text style={styles.primaryButtonText}>Add Task</Text>
                 </TouchableOpacity>
               </View>
             ) : (
-              dailyTasks.map((task) => (
-                <TouchableOpacity
-                  key={task.id}
-                  style={[
-                    styles.taskItem,
-                    task.completed && styles.taskItemCompleted,
-                  ]}
-                  onPress={() => toggleTaskCompletion(task.id)}
-                >
-                  <View style={styles.taskIcon}>
-                    <Text style={styles.taskIconText}>{getTaskIcon(task.type)}</Text>
-                  </View>
-                  
-                  <View style={styles.taskContent}>
-                    <Text style={[
-                      styles.taskTitle,
-                      task.completed && styles.taskTitleCompleted,
-                    ]}>
-                      {task.title}
-                    </Text>
-                    <Text style={styles.taskCrop}>{task.crop}</Text>
-                    <Text style={styles.taskTime}>{task.time}</Text>
-                  </View>
-
-                  <View style={styles.taskActions}>
-                    <View style={[styles.priorityDot, { backgroundColor: getPriorityColor(task.priority) }]} />
-                    <TouchableOpacity
-                      style={[
-                        styles.checkbox,
-                        task.completed && styles.checkboxChecked,
-                      ]}
-                    >
-                      {task.completed && (
-                        <Ionicons name="checkmark" size={16} color="#0E1410" />
-                      )}
-                    </TouchableOpacity>
-                  </View>
-                </TouchableOpacity>
-              ))
+              <View style={styles.tasksList}>
+                {dailyTasks.map((task) => (
+                  <TaskItem key={task.id} task={task} />
+                ))}
+              </View>
             )}
           </View>
         )}
 
         {/* Events View */}
         {view === 'events' && (
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>
-                Events on {new Date(selectedDate).toLocaleDateString()}
-              </Text>
-            </View>
-
+          <View style={styles.contentSection}>
             {dailyEvents.length === 0 ? (
               <View style={styles.emptyState}>
-                <Ionicons name="calendar-outline" size={48} color="#666" />
-                <Text style={styles.emptyTitle}>No Events Scheduled</Text>
+                <Ionicons name="calendar-outline" size={48} color="#2D4A3A" />
+                <Text style={styles.emptyTitle}>No Events</Text>
                 <Text style={styles.emptyDescription}>
-                  No community events or markets scheduled for this day.
+                  No events scheduled for this day.
                 </Text>
               </View>
             ) : (
-              dailyEvents.map((event) => (
-                <View key={event.id} style={styles.eventItem}>
-                  <View style={[
-                    styles.eventIcon,
-                    { backgroundColor: `${getEventColor(event.type)}20` }
-                  ]}>
-                    <Text style={styles.eventIconText}>{getEventIcon(event.type)}</Text>
-                  </View>
-                  
-                  <View style={styles.eventContent}>
-                    <Text style={styles.eventTitle}>{event.title}</Text>
-                    <Text style={styles.eventDescription}>{event.description}</Text>
-                  </View>
-
-                  <Ionicons name="chevron-forward" size={20} color="#666" />
-                </View>
-              ))
+              <View style={styles.eventsList}>
+                {dailyEvents.map((event) => (
+                  <EventItem key={event.id} event={event} />
+                ))}
+              </View>
             )}
           </View>
         )}
 
-        {/* Upcoming Tasks */}
-        <View style={styles.card}>
-          <View style={styles.cardHeader}>
-            <Text style={styles.cardTitle}>Upcoming Tasks</Text>
-            <TouchableOpacity>
-              <Text style={styles.viewAllLink}>View All</Text>
-            </TouchableOpacity>
+        {/* Crop Schedule View */}
+        {view === 'schedule' && (
+          <View style={styles.contentSection}>
+            <View style={styles.cropSchedules}>
+              {cropSchedules.map((schedule, index) => (
+                <CropScheduleItem key={index} schedule={schedule} />
+              ))}
+            </View>
           </View>
+        )}
 
-          {tasks
-            .filter(task => !task.completed && task.date !== selectedDate)
-            .slice(0, 3)
-            .map((task) => (
-              <View key={task.id} style={styles.upcomingTask}>
-                <View style={styles.upcomingTaskInfo}>
-                  <Text style={styles.upcomingTaskTitle}>{task.title}</Text>
-                  <Text style={styles.upcomingTaskDate}>
-                    {new Date(task.date).toLocaleDateString()} • {task.crop}
-                  </Text>
-                </View>
-                <View style={[styles.upcomingPriority, { backgroundColor: getPriorityColor(task.priority) }]} />
-              </View>
-            ))
-          }
-
-          {tasks.filter(task => !task.completed && task.date !== selectedDate).length === 0 && (
-            <Text style={styles.noUpcomingText}>No upcoming tasks</Text>
-          )}
-        </View>
-
-        {/* Quick Stats */}
+        {/* Quick Stats - Simplified */}
         <View style={styles.statsCard}>
           <View style={styles.stat}>
             <Text style={styles.statNumber}>
               {tasks.filter(t => !t.completed).length}
             </Text>
-            <Text style={styles.statLabel}>Pending Tasks</Text>
+            <Text style={styles.statLabel}>Pending</Text>
           </View>
           <View style={styles.statDivider} />
           <View style={styles.stat}>
             <Text style={styles.statNumber}>
               {tasks.filter(t => t.completed).length}
             </Text>
-            <Text style={styles.statLabel}>Completed</Text>
+            <Text style={styles.statLabel}>Done</Text>
           </View>
           <View style={styles.statDivider} />
           <View style={styles.stat}>
             <Text style={styles.statNumber}>
               {tasks.filter(t => t.priority === 'high' && !t.completed).length}
             </Text>
-            <Text style={styles.statLabel}>High Priority</Text>
+            <Text style={styles.statLabel}>Urgent</Text>
           </View>
+        </View>
+
+        {/* Quick Actions */}
+        <View style={styles.quickActions}>
+          <TouchableOpacity 
+            style={styles.quickAction}
+            onPress={() => router.push('/activities/new')}
+          >
+            <View style={[styles.quickActionIcon, { backgroundColor: 'rgba(0, 255, 136, 0.2)' }]}>
+              <Ionicons name="add" size={20} color="#00FF88" />
+            </View>
+            <Text style={styles.quickActionText}>Add Task</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={styles.quickAction}
+            onPress={() => router.push('/tips')}
+          >
+            <View style={[styles.quickActionIcon, { backgroundColor: 'rgba(96, 165, 250, 0.2)' }]}>
+              <Ionicons name="book" size={20} color="#60A5FA" />
+            </View>
+            <Text style={styles.quickActionText}>Tips</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={styles.quickAction}
+            onPress={() => router.push('/notifications')}
+          >
+            <View style={[styles.quickActionIcon, { backgroundColor: 'rgba(252, 211, 77, 0.2)' }]}>
+              <Ionicons name="notifications" size={20} color="#FCD34D" />
+            </View>
+            <Text style={styles.quickActionText}>Reminders</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -412,190 +504,215 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#1E3A2E',
   },
   backButton: {
-    padding: 5,
+    padding: 4,
   },
   headerTitle: {
     color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
   },
+  addButton: {
+    padding: 4,
+  },
   container: {
     flex: 1,
-    padding: 15,
   },
-  card: {
+  contentContainer: {
+    paddingHorizontal: 12,
+    paddingBottom: 20,
+  },
+  // Week Calendar
+  weekCard: {
     backgroundColor: '#1E261E',
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 15,
+    borderRadius: 12,
+    padding: 12,
+    marginVertical: 8,
+    borderWidth: 1,
+    borderColor: '#2D4A3A',
   },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 15,
-  },
-  cardTitle: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  viewAllLink: {
-    color: '#00FF88',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  weekView: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  weekScrollContent: {
+    paddingHorizontal: 4,
   },
   dayButton: {
     alignItems: 'center',
-    padding: 12,
-    borderRadius: 12,
-    minWidth: 50,
+    paddingVertical: 8,
+    paddingHorizontal: isSmallScreen ? 10 : 12,
+    borderRadius: 10,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    marginHorizontal: 2,
+    minWidth: isSmallScreen ? 44 : 48,
   },
   dayButtonSelected: {
     backgroundColor: '#00FF88',
   },
+  dayButtonToday: {
+    borderWidth: 1.5,
+    borderColor: '#00FF88',
+  },
   dayText: {
     color: '#aaa',
-    fontSize: 12,
+    fontSize: isSmallScreen ? 10 : 11,
     fontWeight: '600',
     marginBottom: 4,
   },
   dayTextSelected: {
     color: '#0E1410',
   },
+  dayTextToday: {
+    color: '#00FF88',
+  },
   dateNumber: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: isSmallScreen ? 14 : 16,
     fontWeight: 'bold',
-    marginBottom: 4,
+    marginBottom: 6,
   },
   dateNumberSelected: {
     color: '#0E1410',
   },
+  dateNumberToday: {
+    color: '#00FF88',
+  },
   taskIndicators: {
     flexDirection: 'row',
     gap: 2,
+    height: 3,
   },
-  pendingIndicator: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
+  taskIndicator: {
+    width: 3,
+    height: 3,
+    borderRadius: 1.5,
+    backgroundColor: '#60A5FA',
+  },
+  highPriorityIndicator: {
+    width: 3,
+    height: 3,
+    borderRadius: 1.5,
     backgroundColor: '#F87171',
   },
-  completedIndicator: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#00FF88',
-  },
+  // View Toggle
   viewToggle: {
     flexDirection: 'row',
-    backgroundColor: '#2C2B3E',
-    borderRadius: 12,
-    padding: 4,
-    marginBottom: 20,
+    backgroundColor: '#1E261E',
+    borderRadius: 10,
+    padding: 3,
+    marginVertical: 8,
+    borderWidth: 1,
+    borderColor: '#2D4A3A',
   },
   toggleButton: {
     flex: 1,
-    paddingVertical: 10,
-    borderRadius: 8,
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 4,
+    borderRadius: 8,
+    gap: 4,
   },
   toggleButtonActive: {
-    backgroundColor: '#1E261E',
+    backgroundColor: '#00FF88',
   },
   toggleText: {
     color: '#aaa',
-    fontSize: 14,
+    fontSize: isSmallScreen ? 12 : 13,
     fontWeight: '600',
   },
   toggleTextActive: {
+    color: '#0E1410',
+  },
+  // Date Header
+  dateHeader: {
+    marginVertical: 12,
+  },
+  dateTitle: {
     color: '#fff',
-  },
-  section: {
-    marginBottom: 20,
-  },
-  sectionHeader: {
-    marginBottom: 15,
-  },
-  sectionTitle: {
-    color: '#fff',
-    fontSize: 18,
+    fontSize: isSmallScreen ? 18 : 20,
     fontWeight: 'bold',
-    marginBottom: 4,
+    marginBottom: 2,
   },
-  sectionSubtitle: {
-    color: '#aaa',
-    fontSize: 14,
+  dateSubtitle: {
+    color: '#00FF88',
+    fontSize: isSmallScreen ? 12 : 13,
+  },
+  // Content Sections
+  contentSection: {
+    marginBottom: 16,
+  },
+  // Tasks
+  tasksList: {
+    gap: 8,
   },
   taskItem: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#2C2B3E',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 10,
-  },
-  taskItemCompleted: {
-    opacity: 0.6,
+    borderRadius: 10,
+    padding: 12,
+    borderLeftWidth: 3,
+    borderLeftColor: '#00FF88',
   },
   taskIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(0, 255, 136, 0.2)',
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: 10,
   },
   taskIconText: {
-    fontSize: 18,
+    fontSize: 16,
   },
   taskContent: {
     flex: 1,
+    marginRight: 8,
+  },
+  taskHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 2,
   },
   taskTitle: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: isSmallScreen ? 14 : 15,
     fontWeight: '600',
-    marginBottom: 2,
+    flex: 1,
+    marginRight: 6,
   },
-  taskTitleCompleted: {
-    textDecorationLine: 'line-through',
-    color: '#aaa',
+  priorityDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
   },
   taskCrop: {
     color: '#aaa',
-    fontSize: 12,
+    fontSize: isSmallScreen ? 11 : 12,
     marginBottom: 2,
   },
-  taskTime: {
-    color: '#888',
-    fontSize: 11,
-  },
-  taskActions: {
+  taskMeta: {
+    flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
   },
-  priorityDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+  taskTime: {
+    color: '#00FF88',
+    fontSize: isSmallScreen ? 10 : 11,
+    fontWeight: '600',
+  },
+  taskDuration: {
+    color: '#888',
+    fontSize: isSmallScreen ? 10 : 11,
+    marginLeft: 4,
   },
   checkbox: {
-    width: 20,
-    height: 20,
-    borderRadius: 6,
+    width: 18,
+    height: 18,
+    borderRadius: 5,
     borderWidth: 2,
     borderColor: '#666',
     justifyContent: 'center',
@@ -605,109 +722,145 @@ const styles = StyleSheet.create({
     backgroundColor: '#00FF88',
     borderColor: '#00FF88',
   },
+  // Events
+  eventsList: {
+    gap: 8,
+  },
   eventItem: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#2C2B3E',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 10,
+    borderRadius: 10,
+    padding: 12,
   },
   eventIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: 10,
   },
   eventIconText: {
-    fontSize: 18,
+    fontSize: 16,
   },
   eventContent: {
     flex: 1,
   },
   eventTitle: {
     color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-  eventDescription: {
-    color: '#aaa',
-    fontSize: 12,
-  },
-  emptyState: {
-    alignItems: 'center',
-    paddingVertical: 40,
-  },
-  emptyTitle: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginTop: 16,
-    marginBottom: 8,
-  },
-  emptyDescription: {
-    color: '#aaa',
-    fontSize: 14,
-    textAlign: 'center',
-    marginBottom: 20,
-    lineHeight: 20,
-  },
-  primaryButton: {
-    backgroundColor: '#00FF88',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 10,
-    alignItems: 'center',
-    flexDirection: 'row',
-    gap: 8,
-  },
-  primaryButtonText: {
-    color: '#0E1410',
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  upcomingTask: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#2D4A3A',
-  },
-  upcomingTaskInfo: {
-    flex: 1,
-  },
-  upcomingTaskTitle: {
-    color: '#fff',
-    fontSize: 14,
+    fontSize: isSmallScreen ? 14 : 15,
     fontWeight: '600',
     marginBottom: 2,
   },
-  upcomingTaskDate: {
+  eventDescription: {
     color: '#aaa',
-    fontSize: 12,
+    fontSize: isSmallScreen ? 11 : 12,
+    marginBottom: 4,
   },
-  upcomingPriority: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
+  eventMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
-  noUpcomingText: {
-    color: '#666',
-    fontSize: 14,
-    textAlign: 'center',
-    paddingVertical: 20,
+  eventTime: {
+    color: '#aaa',
+    fontSize: isSmallScreen ? 10 : 11,
+    marginLeft: 4,
   },
-  statsCard: {
-    backgroundColor: '#1E261E',
-    borderRadius: 16,
-    padding: 20,
+  // Crop Schedule
+  cropSchedules: {
+    gap: 8,
+  },
+  cropScheduleItem: {
+    backgroundColor: '#2C2B3E',
+    borderRadius: 10,
+    padding: 12,
+  },
+  cropHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 15,
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  cropName: {
+    color: '#fff',
+    fontSize: isSmallScreen ? 14 : 15,
+    fontWeight: 'bold',
+  },
+  stageBadge: {
+    backgroundColor: 'rgba(0, 255, 136, 0.2)',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  stageText: {
+    color: '#00FF88',
+    fontSize: isSmallScreen ? 10 : 11,
+    fontWeight: '600',
+  },
+  nextStage: {
+    color: '#aaa',
+    fontSize: isSmallScreen ? 11 : 12,
+    marginBottom: 8,
+  },
+//   tasksList: {
+//     gap: 4,
+//   },
+  cropTask: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  cropTaskText: {
+    color: '#aaa',
+    fontSize: isSmallScreen ? 11 : 12,
+    flex: 1,
+  },
+  // Empty State
+  emptyState: {
+    alignItems: 'center',
+    paddingVertical: 30,
+  },
+  emptyTitle: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginTop: 12,
+    marginBottom: 6,
+    textAlign: 'center',
+  },
+  emptyDescription: {
+    color: '#aaa',
+    fontSize: 13,
+    textAlign: 'center',
+    marginBottom: 16,
+    lineHeight: 18,
+    paddingHorizontal: 20,
+  },
+  primaryButton: {
+    backgroundColor: '#00FF88',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 8,
+  },
+  primaryButtonText: {
+    color: '#0E1410',
+    fontSize: 13,
+    fontWeight: 'bold',
+  },
+  // Stats
+  statsCard: {
+    backgroundColor: '#1E261E',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    borderWidth: 1,
+    borderColor: '#2D4A3A',
   },
   stat: {
     alignItems: 'center',
@@ -715,17 +868,45 @@ const styles = StyleSheet.create({
   },
   statNumber: {
     color: '#00FF88',
-    fontSize: 24,
+    fontSize: isSmallScreen ? 18 : 20,
     fontWeight: 'bold',
-    marginBottom: 4,
+    marginBottom: 2,
   },
   statLabel: {
     color: '#aaa',
-    fontSize: 12,
+    fontSize: isSmallScreen ? 10 : 11,
     textAlign: 'center',
   },
   statDivider: {
     width: 1,
     backgroundColor: '#2D4A3A',
+  },
+  // Quick Actions
+  quickActions: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  quickAction: {
+    flex: 1,
+    alignItems: 'center',
+    padding: 12,
+    backgroundColor: '#1E261E',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#2D4A3A',
+  },
+  quickActionIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  quickActionText: {
+    color: '#fff',
+    fontSize: isSmallScreen ? 11 : 12,
+    fontWeight: '600',
+    textAlign: 'center',
   },
 });

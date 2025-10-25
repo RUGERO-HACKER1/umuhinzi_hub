@@ -6,6 +6,7 @@ import {
   StyleSheet,
   ScrollView,
   Linking,
+  ImageBackground,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -180,6 +181,7 @@ export default function ResourcesScreen() {
           </ScrollView>
         </View>
 
+        
         {/* Resources Grid */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
@@ -237,6 +239,67 @@ export default function ResourcesScreen() {
               ))}
             </View>
           )}
+        </View>
+
+{/* Video Tutorials Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>
+            <Ionicons name="play-circle-outline" size={18} color="#00FF88" /> Video Tutorials
+          </Text>
+          <View style={styles.grid}>
+            <TouchableOpacity style={styles.videoCard}>
+              <ImageBackground
+                source={{
+                  uri: "https://via.placeholder.com/180x100/A9A9A9/000000?text=VIDEO",
+                }}
+                style={styles.videoThumbnail}
+              >
+                <Ionicons name="play-circle" size={40} color="#fff" />
+                <Text style={styles.videoDuration}>2:40</Text>
+              </ImageBackground>
+              <Text style={styles.videoTitle}>Composting Basics</Text>
+              <Text style={styles.videoDescription}>Build healthy soil.</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.videoCard}>
+              <ImageBackground
+                source={{
+                  uri: "https://via.placeholder.com/180x100/8FBC8F/000000?text=VIDEO",
+                }}
+                style={styles.videoThumbnail}
+              >
+                <Ionicons name="play-circle" size={40} color="#fff" />
+                <Text style={styles.videoDuration}>1:28</Text>
+              </ImageBackground>
+              <Text style={styles.videoTitle}>Transplanting Tips</Text>
+              <Text style={styles.videoDescription}>Ensuring healthy growth.</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.videoCard}>
+              <ImageBackground
+                source={{
+                  uri: "https://via.placeholder.com/180x100/B0C4DE/000000?text=VIDEO",
+                }}
+                style={styles.videoThumbnail}
+              >
+                <Ionicons name="play-circle" size={40} color="#fff" />
+                <Text style={styles.videoDuration}>3:12</Text>
+              </ImageBackground>
+              <Text style={styles.videoTitle}>Irrigation Setup</Text>
+              <Text style={styles.videoDescription}>Water efficiency.</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.videoCard}>
+              <ImageBackground
+                source={{
+                  uri: "https://via.placeholder.com/180x100/DDA0DD/000000?text=VIDEO",
+                }}
+                style={styles.videoThumbnail}
+              >
+                <Ionicons name="play-circle" size={40} color="#fff" />
+                <Text style={styles.videoDuration}>3:45</Text>
+              </ImageBackground>
+              <Text style={styles.videoTitle}>Harvest Timing</Text>
+              <Text style={styles.videoDescription}>Know when to pick.</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Featured Section */}
@@ -643,5 +706,49 @@ const styles = StyleSheet.create({
   govLinkDesc: {
     color: '#aaa',
     fontSize: 12,
+  },
+  // Video Tutorials Styles
+  grid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+  },
+  videoCard: {
+    width: '48%',
+    backgroundColor: '#1E261E',
+    borderRadius: 12,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  videoThumbnail: {
+    height: 100,
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  videoDuration: {
+    position: 'absolute',
+    bottom: 8,
+    right: 8,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    color: '#fff',
+    fontSize: 12,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  videoTitle: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: 'bold',
+    padding: 12,
+    paddingBottom: 4,
+  },
+  videoDescription: {
+    color: '#aaa',
+    fontSize: 12,
+    padding: 12,
+    paddingTop: 0,
   },
 });

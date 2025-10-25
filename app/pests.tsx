@@ -191,14 +191,14 @@ export default function PestsScreen() {
           </TouchableOpacity>
 
           <TouchableOpacity 
-            style={styles.quickAction}
-            onPress={() => {/* Handle emergency */}}
-          >
-            <View style={[styles.quickActionIcon, { backgroundColor: 'rgba(248, 113, 113, 0.2)' }]}>
-              <Ionicons name="warning" size={24} color="#F87171" />
-            </View>
-            <Text style={styles.quickActionText}>Emergency</Text>
-          </TouchableOpacity>
+  style={styles.quickAction}
+  onPress={() => router.push('/emergency')}  // Changed this line
+>
+  <View style={[styles.quickActionIcon, { backgroundColor: 'rgba(248, 113, 113, 0.2)' }]}>
+    <Ionicons name="warning" size={24} color="#F87171" />
+  </View>
+  <Text style={styles.quickActionText}>Emergency</Text>
+</TouchableOpacity>
         </View>
 
         {/* Pest Library */}

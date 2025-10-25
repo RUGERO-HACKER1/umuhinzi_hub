@@ -7,47 +7,150 @@ import {
   ScrollView,
   TextInput,
   Animated,
+  Dimensions,
+  Image,
 } from "react-native";
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons, FontAwesome5 } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 
+const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+
 export default function ModernLandingPage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [activeFeature, setActiveFeature] = useState(0);
   const fadeAnim = new Animated.Value(0);
   const slideAnim = new Animated.Value(50);
+  const scaleAnim = new Animated.Value(0.8);
+
+  const features = [
+    {
+      icon: "weather-partly-cloudy",
+      title: "AI Weather Intelligence",
+      description: "Real-time hyper-local forecasts with smart farming recommendations",
+      color: "#00FF88"
+    },
+    {
+      icon: "currency-usd",
+      title: "Live Market Dynamics",
+      description: "Access real-time pricing and connect directly with buyers",
+      color: "#60A5FA"
+    },
+    {
+      icon: "sprout",
+      title: "Regenerative Farming",
+      description: "Sustainable practices that heal the earth and boost yields",
+      color: "#FCD34D"
+    },
+    {
+      icon: "robot",
+      title: "AI Assistant AURA",
+      description: "24/7 farming guidance and problem-solving",
+      color: "#D8BFD8"
+    }
+  ];
+
+  const testimonials = [
+    {
+      name: "John K.",
+      role: "Maize Farmer",
+      text: "Increased my yield by 40% with UmuhinziHub's smart planting calendar.",
+      avatar: "👨‍🌾"
+    },
+    {
+      name: "Sarah M.",
+      role: "Coffee Grower",
+      text: "The pest detection feature saved my entire harvest last season!",
+      avatar: "👩‍🌾"
+    },
+    {
+      name: "David T.",
+      role: "Vegetable Farmer",
+      text: "Direct market access doubled my profits. Life-changing app!",
+      avatar: "🧑‍🌾"
+    }
+  ];
 
   useEffect(() => {
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
-        duration: 1000,
+        duration: 1200,
         useNativeDriver: true,
       }),
       Animated.timing(slideAnim, {
         toValue: 0,
+        duration: 1000,
+        useNativeDriver: true,
+      }),
+      Animated.timing(scaleAnim, {
+        toValue: 1,
         duration: 800,
         useNativeDriver: true,
       }),
     ]).start();
   }, []);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveFeature((prev) => (prev + 1) % features.length);
+    }, 2000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const FeatureCarousel = () => (
+    <View style={styles.carouselContainer}>
+      {features.map((feature, index) => (
+        <Animated.View
+          key={index}
+          style={[
+            styles.featureCarouselItem,
+            {
+              opacity: activeFeature === index ? 1 : 0.3,
+              transform: [
+                { scale: activeFeature === index ? 1 : 0.9 }
+              ]
+            }
+          ]}
+        >
+          <View style={[styles.featureCarouselIcon, { backgroundColor: `${feature.color}20` }]}>
+            <MaterialCommunityIcons name={feature.icon} size={32} color={feature.color} />
+          </View>
+          <Text style={styles.featureCarouselTitle}>{feature.title}</Text>
+          <Text style={styles.featureCarouselDescription}>{feature.description}</Text>
+        </Animated.View>
+      ))}
+    </View>
+  );
+
   return (
     <SafeAreaView style={styles.safeArea}>
-      <ScrollView contentContainerStyle={styles.container}>
-        {/* Animated Background Orbs */}
+      <ScrollView 
+        contentContainerStyle={styles.container}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Animated Background */}
         <View style={styles.backgroundOverlay}>
-          <View style={[styles.floatingOrb, styles.orb1]} />
-          <View style={[styles.floatingOrb, styles.orb2]} />
-          <View style={[styles.floatingOrb, styles.orb3]} />
+          <Animated.View style={[styles.floatingOrb, styles.orb1]} />
+          <Animated.View style={[styles.floatingOrb, styles.orb2]} />
+          <Animated.View style={[styles.floatingOrb, styles.orb3]} />
+          <View style={styles.gradientOverlay} />
         </View>
 
         {/* Navigation */}
-        <View style={styles.nav}>
+        <Animated.View 
+          style={[
+            styles.nav,
+            {
+              opacity: fadeAnim,
+              transform: [{ translateY: slideAnim }]
+            }
+          ]}
+        >
           <View style={styles.navContent}>
             <View style={styles.logo}>
               <View style={styles.logoIcon}>
-                <Ionicons name="leaf" size={24} color="#0a0e14" />
+                <Ionicons name="leaf" size={28} color="#0E1410" />
               </View>
               <Text style={styles.logoText}>UmuhinziHub</Text>
             </View>
@@ -65,35 +168,97 @@ export default function ModernLandingPage() {
           </View>
 
           {isMenuOpen && (
-            <View style={styles.mobileMenu}>
-<TouchableOpacity
-  style={styles.mobileMenuItem}
-  onPress={() => router.push("/tips")} // 👈 navigates to your Tips file
->
-  <Text style={styles.mobileMenuText}>Features</Text>
-</TouchableOpacity>
-<TouchableOpacity
-  style={styles.mobileMenuItem}
-  onPress={() => router.push("/About")}
->
-  <Text style={styles.mobileMenuText}>About</Text>
-</TouchableOpacity>
+            <Animated.View 
+              style={[
+                styles.mobileMenu,
+                {
+                  opacity: fadeAnim,
+                  transform: [{ translateY: slideAnim }]
+                }
+              ]}
+            >
+              <TouchableOpacity
+                style={styles.mobileMenuItem}
+                onPress={() => { router.push("/tips"); setIsMenuOpen(false); }}
+              >
+                <Ionicons name="book" size={20} color="#00FF88" />
+                <Text style={styles.mobileMenuText}>Tips & Guides</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.mobileMenuItem}
+                onPress={() => { router.push("/resources"); setIsMenuOpen(false); }}
+              >
+                <Ionicons name="library" size={20} color="#00FF88" />
+                <Text style={styles.mobileMenuText}>Resources</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.mobileMenuItem}
+                onPress={() => { router.push("/scan"); setIsMenuOpen(false); }}
+              >
+                <Ionicons name="camera" size={20} color="#00FF88" />
+                <Text style={styles.mobileMenuText}>Plant Scanner</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.mobileMenuItem}
+                onPress={() => { router.push("/pests"); setIsMenuOpen(false); }}
+              >
+                <Ionicons name="bug" size={20} color="#00FF88" />
+                <Text style={styles.mobileMenuText}>Pest Control</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.mobileMenuItem}
+                onPress={() => { router.push("/emergency"); setIsMenuOpen(false); }}
+              >
+                <Ionicons name="warning" size={20} color="#00FF88" />
+                <Text style={styles.mobileMenuText}>Emergency</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.mobileMenuItem}
+                onPress={() => { router.push("/calendar"); setIsMenuOpen(false); }}
+              >
+                <Ionicons name="calendar" size={20} color="#00FF88" />
+                <Text style={styles.mobileMenuText}>Calendar</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.mobileMenuItem}
+                onPress={() => { router.push("/notifications"); setIsMenuOpen(false); }}
+              >
+                <Ionicons name="notifications" size={20} color="#00FF88" />
+                <Text style={styles.mobileMenuText}>Alerts</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.mobileMenuItem}
+                onPress={() => { router.push("/(tabs)/chat"); setIsMenuOpen(false); }}
+              >
+                <Ionicons name="chatbubble" size={20} color="#00FF88" />
+                <Text style={styles.mobileMenuText}>AURA AI</Text>
+              </TouchableOpacity>
+
+              <View style={styles.menuDivider} />
 
               <TouchableOpacity
                 style={styles.mobileMenuItemBorder}
-                onPress={() => router.push("/LogIn")}
+                onPress={() => { router.push("/LogIn"); setIsMenuOpen(false); }}
               >
                 <Text style={styles.mobileMenuTextGreen}>Log In</Text>
               </TouchableOpacity>
+              
               <TouchableOpacity
                 style={styles.mobileMenuItemGradient}
-                onPress={() => router.push("/SignUp")}
+                onPress={() => { router.push("/SignUp"); setIsMenuOpen(false); }}
               >
-                <Text style={styles.mobileMenuTextBold}>Get Started</Text>
+                <Text style={styles.mobileMenuTextBold}>Get Started Free</Text>
               </TouchableOpacity>
-            </View>
+            </Animated.View>
           )}
-        </View>
+        </Animated.View>
 
         {/* Hero Section */}
         <Animated.View
@@ -106,7 +271,7 @@ export default function ModernLandingPage() {
           ]}
         >
           <View style={styles.badge}>
-            <Text style={styles.badgeIcon}>✨</Text>
+            <Text style={styles.badgeIcon}>🚀</Text>
             <Text style={styles.badgeText}>Transforming African Agriculture</Text>
           </View>
 
@@ -115,22 +280,29 @@ export default function ModernLandingPage() {
 
           <Text style={styles.heroDescription}>
             Smart farming intelligence, direct market access, and community
-            support—all in your pocket
+            support—all in your pocket. Join 50,000+ farmers growing smarter.
           </Text>
 
-          <TouchableOpacity
-            style={styles.primaryButton}
-            onPress={() => router.push("/SignUp")}
-          >
-            <Text style={styles.primaryButtonText}>Start Growing Smarter →</Text>
-          </TouchableOpacity>
+          <View style={styles.heroButtons}>
+            <TouchableOpacity
+              style={styles.primaryButton}
+              onPress={() => router.push("/SignUp")}
+            >
+              <Text style={styles.primaryButtonText}>Start Growing Smarter</Text>
+              <Ionicons name="arrow-forward" size={20} color="#0E1410" />
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.secondaryButton}
-            onPress={() => router.push("/LogIn")}
-          >
-            <Text style={styles.secondaryButtonText}>Watch Demo</Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.secondaryButton}
+              onPress={() => router.push("/LogIn")}
+            >
+              <Ionicons name="play-circle" size={20} color="#00FF88" />
+              <Text style={styles.secondaryButtonText}>Watch Demo</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Feature Carousel */}
+          <FeatureCarousel />
 
           {/* Stats */}
           <View style={styles.stats}>
@@ -138,10 +310,12 @@ export default function ModernLandingPage() {
               <Text style={styles.statValue}>50K+</Text>
               <Text style={styles.statLabel}>Active Farmers</Text>
             </View>
+            <View style={styles.statDivider} />
             <View style={styles.statItem}>
               <Text style={styles.statValue}>95%</Text>
               <Text style={styles.statLabel}>Satisfaction</Text>
             </View>
+            <View style={styles.statDivider} />
             <View style={styles.statItem}>
               <Text style={styles.statValue}>40%</Text>
               <Text style={styles.statLabel}>Yield Increase</Text>
@@ -158,65 +332,38 @@ export default function ModernLandingPage() {
             Cutting-edge technology meets traditional farming wisdom
           </Text>
 
-          <View style={styles.featureCard}>
-            <View style={styles.featureIconContainer}>
-              <MaterialCommunityIcons
-                name="weather-partly-cloudy"
-                size={32}
-                color="#10b981"
-              />
-            </View>
-            <View style={styles.featureTextContent}>
-              <Text style={styles.featureTitle}>AI Weather Intelligence</Text>
-              <Text style={styles.featureDescription}>
-                Real-time hyper-local forecasts with smart farming recommendations
-              </Text>
-            </View>
-          </View>
-
-          <View style={styles.featureCard}>
-            <View style={styles.featureIconContainer}>
-              <MaterialCommunityIcons
-                name="currency-usd"
-                size={32}
-                color="#10b981"
-              />
-            </View>
-            <View style={styles.featureTextContent}>
-              <Text style={styles.featureTitle}>Live Market Dynamics</Text>
-              <Text style={styles.featureDescription}>
-                Access real-time pricing and connect directly with buyers
-              </Text>
-            </View>
-          </View>
-
-          <View style={styles.featureCard}>
-            <View style={styles.featureIconContainer}>
-              <MaterialCommunityIcons name="sprout" size={32} color="#10b981" />
-            </View>
-            <View style={styles.featureTextContent}>
-              <Text style={styles.featureTitle}>Regenerative Farming</Text>
-              <Text style={styles.featureDescription}>
-                Sustainable practices that heal the earth and boost yields
-              </Text>
-            </View>
-          </View>
+          {features.map((feature, index) => (
+            <Animated.View
+              key={index}
+              style={[
+                styles.featureCard,
+                {
+                  opacity: fadeAnim,
+                  transform: [{ translateY: slideAnim }]
+                }
+              ]}
+            >
+              <View style={[styles.featureIconContainer, { backgroundColor: `${feature.color}20` }]}>
+                <MaterialCommunityIcons name={feature.icon} size={32} color={feature.color} />
+              </View>
+              <View style={styles.featureTextContent}>
+                <Text style={styles.featureTitle}>{feature.title}</Text>
+                <Text style={styles.featureDescription}>{feature.description}</Text>
+              </View>
+            </Animated.View>
+          ))}
         </View>
 
         {/* Services Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>
-            Services <Text style={styles.gradientText}>Offered</Text>
+            Everything You Need to <Text style={styles.gradientText}>Succeed</Text>
           </Text>
 
           <View style={styles.serviceGrid}>
             <View style={styles.serviceCard}>
               <View style={styles.serviceIcon}>
-                <MaterialCommunityIcons
-                  name="flower-tulip-outline"
-                  size={28}
-                  color="#10b981"
-                />
+                <MaterialCommunityIcons name="flower-tulip" size={28} color="#00FF88" />
               </View>
               <Text style={styles.serviceTitle}>Planting Intelligence</Text>
               <Text style={styles.serviceDescription}>
@@ -226,11 +373,7 @@ export default function ModernLandingPage() {
 
             <View style={styles.serviceCard}>
               <View style={styles.serviceIcon}>
-                <MaterialCommunityIcons
-                  name="shopping-outline"
-                  size={28}
-                  color="#10b981"
-                />
+                <MaterialCommunityIcons name="shopping" size={28} color="#60A5FA" />
               </View>
               <Text style={styles.serviceTitle}>Digital Marketplace</Text>
               <Text style={styles.serviceDescription}>Sell direct, earn more</Text>
@@ -238,11 +381,7 @@ export default function ModernLandingPage() {
 
             <View style={styles.serviceCard}>
               <View style={styles.serviceIcon}>
-                <MaterialCommunityIcons
-                  name="calendar-check-outline"
-                  size={28}
-                  color="#10b981"
-                />
+                <MaterialCommunityIcons name="calendar-check" size={28} color="#FCD34D" />
               </View>
               <Text style={styles.serviceTitle}>Smart Reminders</Text>
               <Text style={styles.serviceDescription}>
@@ -252,11 +391,7 @@ export default function ModernLandingPage() {
 
             <View style={styles.serviceCard}>
               <View style={styles.serviceIcon}>
-                <MaterialCommunityIcons
-                  name="account-group-outline"
-                  size={28}
-                  color="#10b981"
-                />
+                <MaterialCommunityIcons name="account-group" size={28} color="#D8BFD8" />
               </View>
               <Text style={styles.serviceTitle}>Farmer Network</Text>
               <Text style={styles.serviceDescription}>Connect with local experts</Text>
@@ -264,109 +399,122 @@ export default function ModernLandingPage() {
           </View>
         </View>
 
-        {/* Tips Section */}
+        {/* Testimonials */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>
-            Pro <Text style={styles.gradientText}>Tips</Text>
+            Trusted by <Text style={styles.gradientText}>Farmers</Text>
           </Text>
 
-          <View style={styles.tipCard}>
-            <View style={styles.tipHeader}>
-              <View style={styles.tipIconContainer}>
-                <MaterialCommunityIcons
-                  name="white-balance-sunny"
-                  size={20}
-                  color="#10b981"
-                />
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false}
+            style={styles.testimonialsScroll}
+          >
+            {testimonials.map((testimonial, index) => (
+              <View key={index} style={styles.testimonialCard}>
+                <View style={styles.testimonialHeader}>
+                  <Text style={styles.testimonialAvatar}>{testimonial.avatar}</Text>
+                  <View>
+                    <Text style={styles.testimonialName}>{testimonial.name}</Text>
+                    <Text style={styles.testimonialRole}>{testimonial.role}</Text>
+                  </View>
+                </View>
+                <Text style={styles.testimonialText}>{testimonial.text}</Text>
+                <View style={styles.rating}>
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Ionicons key={star} name="star" size={16} color="#FCD34D" />
+                  ))}
+                </View>
               </View>
-              <Text style={styles.tipTitle}>Seasonal Planting</Text>
-            </View>
-            <Text style={styles.tipDescription}>
-              Optimize yields by planting according to microclimates
-            </Text>
-          </View>
-
-          <View style={styles.tipCard}>
-            <View style={styles.tipHeader}>
-              <View style={styles.tipIconContainer}>
-                <MaterialCommunityIcons name="water" size={20} color="#10b981" />
-              </View>
-              <Text style={styles.tipTitle}>Water Management</Text>
-            </View>
-            <Text style={styles.tipDescription}>
-              Smart irrigation reduces water use by 40%
-            </Text>
-          </View>
-
-          <View style={styles.tipCard}>
-            <View style={styles.tipHeader}>
-              <View style={styles.tipIconContainer}>
-                <MaterialCommunityIcons name="sprout" size={20} color="#10b981" />
-              </View>
-              <Text style={styles.tipTitle}>Soil Health</Text>
-            </View>
-            <Text style={styles.tipDescription}>
-              Cover crops increase organic matter and profits
-            </Text>
-          </View>
+            ))}
+          </ScrollView>
         </View>
 
         {/* CTA Section */}
         <View style={styles.section}>
           <View style={styles.ctaCard}>
             <Text style={styles.ctaTitle}>
-              Join <Text style={styles.gradientText}>50,000+</Text> Farmers
+              Ready to Transform Your <Text style={styles.gradientText}>Farm</Text>?
             </Text>
             <Text style={styles.ctaDescription}>
-              Start your journey to smarter, more profitable farming today
+              Join thousands of successful farmers today. Get started in 2 minutes.
             </Text>
 
-            <TextInput
-              style={styles.input}
-              placeholder="Your name"
-              placeholderTextColor="#64748b"
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Email address"
-              placeholderTextColor="#64748b"
-              keyboardType="email-address"
-            />
+            <View style={styles.ctaStats}>
+              <View style={styles.ctaStat}>
+                <Ionicons name="checkmark-circle" size={20} color="#00FF88" />
+                <Text style={styles.ctaStatText}>Free Forever</Text>
+              </View>
+              <View style={styles.ctaStat}>
+                <Ionicons name="checkmark-circle" size={20} color="#00FF88" />
+                <Text style={styles.ctaStatText}>No Credit Card</Text>
+              </View>
+              <View style={styles.ctaStat}>
+                <Ionicons name="checkmark-circle" size={20} color="#00FF88" />
+                <Text style={styles.ctaStatText}>Setup in 2min</Text>
+              </View>
+            </View>
 
             <TouchableOpacity
-              style={styles.primaryButton}
+              style={styles.ctaButton}
               onPress={() => router.push("/SignUp")}
             >
-              <Text style={styles.primaryButtonText}>Get Started Today</Text>
+              <Text style={styles.ctaButtonText}>Start Free Trial</Text>
+              <Ionicons name="arrow-forward" size={20} color="#0E1410" />
             </TouchableOpacity>
+
+            <Text style={styles.ctaFooter}>
+              Already have an account?{' '}
+              <Text 
+                style={styles.ctaFooterLink}
+                onPress={() => router.push("/LogIn")}
+              >
+                Log In
+              </Text>
+            </Text>
           </View>
         </View>
 
         {/* Footer */}
         <View style={styles.footer}>
-          <View style={styles.footerLogo}>
-            <View style={styles.logoIcon}>
-              <Ionicons name="leaf" size={24} color="#0a0e14" />
+          <View style={styles.footerContent}>
+            <View style={styles.footerLogo}>
+              <View style={styles.logoIcon}>
+                <Ionicons name="leaf" size={24} color="#0E1410" />
+              </View>
+              <Text style={styles.logoText}>UmuhinziHub</Text>
             </View>
-            <Text style={styles.logoText}>UmuhinziHub</Text>
-          </View>
 
-          <View style={styles.socialIcons}>
-            <TouchableOpacity style={styles.socialButton}>
-              <Ionicons name="logo-whatsapp" size={24} color="#94a3b8" />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.socialButton}>
-              <Ionicons name="logo-facebook" size={24} color="#94a3b8" />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.socialButton}>
-              <Ionicons name="mail-outline" size={24} color="#94a3b8" />
-            </TouchableOpacity>
-          </View>
+            <Text style={styles.footerTagline}>
+              Empowering African farmers with AI-driven agriculture technology.
+            </Text>
 
-          <Text style={styles.footerText}>
-            © 2024 UmuhinziHub. All rights reserved.
-          </Text>
-          <Text style={styles.footerLinks}>Privacy Policy | Terms of Service</Text>
+            <View style={styles.socialIcons}>
+              <TouchableOpacity style={styles.socialButton}>
+                <Ionicons name="logo-whatsapp" size={20} color="#00FF88" />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.socialButton}>
+                <Ionicons name="logo-facebook" size={20} color="#00FF88" />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.socialButton}>
+                <Ionicons name="logo-twitter" size={20} color="#00FF88" />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.socialButton}>
+                <Ionicons name="mail-outline" size={20} color="#00FF88" />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.footerLinks}>
+              <Text style={styles.footerLink}>Privacy Policy</Text>
+              <Text style={styles.footerLink}>Terms of Service</Text>
+              <Text style={styles.footerLink}>Support</Text>
+              <Text style={styles.footerLink}>Contact</Text>
+            </View>
+
+            <Text style={styles.footerCopyright}>
+              © 2024 UmuhinziHub. All rights reserved.
+            </Text>
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -376,11 +524,11 @@ export default function ModernLandingPage() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#0a0e14",
+    backgroundColor: "#0E1410",
   },
   container: {
     flexGrow: 1,
-    backgroundColor: "#0a0e14",
+    backgroundColor: "#0E1410",
   },
   backgroundOverlay: {
     position: "absolute",
@@ -388,7 +536,10 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    opacity: 0.15,
+  },
+  gradientOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(14, 20, 16, 0.8)",
   },
   floatingOrb: {
     position: "absolute",
@@ -396,100 +547,114 @@ const styles = StyleSheet.create({
   },
   orb1: {
     top: "10%",
-    left: "5%",
-    width: 250,
-    height: 250,
-    backgroundColor: "#10b981",
-    opacity: 0.3,
+    left: "-10%",
+    width: 300,
+    height: 300,
+    backgroundColor: "#00FF88",
+    opacity: 0.1,
   },
   orb2: {
     top: "30%",
-    right: "10%",
-    width: 300,
-    height: 300,
-    backgroundColor: "#06b6d4",
-    opacity: 0.2,
+    right: "-15%",
+    width: 400,
+    height: 400,
+    backgroundColor: "#60A5FA",
+    opacity: 0.08,
   },
   orb3: {
-    bottom: "15%",
-    left: "30%",
-    width: 280,
-    height: 280,
-    backgroundColor: "#84cc16",
-    opacity: 0.25,
+    bottom: "20%",
+    left: "20%",
+    width: 250,
+    height: 250,
+    backgroundColor: "#FCD34D",
+    opacity: 0.06,
   },
   nav: {
     position: "relative",
     zIndex: 1000,
-    backgroundColor: "rgba(15, 23, 42, 0.85)",
+    backgroundColor: "rgba(14, 20, 16, 0.95)",
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(100, 116, 139, 0.2)",
+    borderBottomColor: "rgba(0, 255, 136, 0.1)",
   },
   navContent: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: 16,
+    padding: 20,
   },
   logo: {
     flexDirection: "row",
     alignItems: "center",
   },
   logoIcon: {
-    backgroundColor: "#10b981",
-    padding: 8,
-    borderRadius: 12,
-  },
-  logoText: {
-    color: "#10b981",
-    fontSize: 22,
-    fontWeight: "bold",
-    marginLeft: 10,
-  },
-  menuButton: {
-    backgroundColor: "rgba(30, 41, 59, 0.5)",
+    backgroundColor: "#00FF88",
     padding: 10,
     borderRadius: 12,
+    marginRight: 12,
+  },
+  logoText: {
+    color: "#00FF88",
+    fontSize: 24,
+    fontWeight: "bold",
+  },
+  menuButton: {
+    backgroundColor: "rgba(0, 255, 136, 0.1)",
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "rgba(0, 255, 136, 0.2)",
   },
   mobileMenu: {
-    backgroundColor: "rgba(15, 23, 42, 0.95)",
+    backgroundColor: "rgba(14, 20, 16, 0.98)",
     borderTopWidth: 1,
-    borderTopColor: "rgba(100, 116, 139, 0.2)",
-    padding: 16,
+    borderTopColor: "rgba(0, 255, 136, 0.1)",
+    padding: 20,
   },
   mobileMenuItem: {
-    padding: 14,
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 16,
     marginBottom: 8,
     borderRadius: 12,
+    backgroundColor: "rgba(0, 255, 136, 0.05)",
   },
   mobileMenuText: {
     color: "#fff",
     fontSize: 16,
+    fontWeight: "600",
+    marginLeft: 12,
+  },
+  menuDivider: {
+    height: 1,
+    backgroundColor: "rgba(0, 255, 136, 0.1)",
+    marginVertical: 16,
   },
   mobileMenuItemBorder: {
-    padding: 14,
-    marginBottom: 8,
+    padding: 16,
+    marginBottom: 12,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: "rgba(16, 185, 129, 0.3)",
+    borderColor: "rgba(0, 255, 136, 0.3)",
+    alignItems: "center",
   },
   mobileMenuTextGreen: {
-    color: "#10b981",
+    color: "#00FF88",
     fontSize: 16,
     fontWeight: "bold",
   },
   mobileMenuItemGradient: {
-    padding: 14,
+    padding: 16,
     borderRadius: 12,
-    backgroundColor: "#10b981",
+    backgroundColor: "#00FF88",
+    alignItems: "center",
   },
   mobileMenuTextBold: {
-    color: "#fff",
+    color: "#0E1410",
     fontSize: 16,
     fontWeight: "bold",
   },
   hero: {
-    paddingTop: 60,
+    paddingTop: 80,
     paddingBottom: 60,
     paddingHorizontal: 20,
     alignItems: "center",
@@ -497,11 +662,11 @@ const styles = StyleSheet.create({
   badge: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(16, 185, 129, 0.1)",
+    backgroundColor: "rgba(0, 255, 136, 0.1)",
     borderWidth: 1,
-    borderColor: "rgba(16, 185, 129, 0.3)",
-    paddingVertical: 10,
-    paddingHorizontal: 18,
+    borderColor: "rgba(0, 255, 136, 0.3)",
+    paddingVertical: 12,
+    paddingHorizontal: 20,
     borderRadius: 50,
     marginBottom: 30,
   },
@@ -510,19 +675,19 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   badgeText: {
-    color: "#10b981",
-    fontSize: 13,
+    color: "#00FF88",
+    fontSize: 14,
     fontWeight: "600",
   },
   heroTitleLight: {
-    color: "#cbd5e1",
+    color: "#E8F5E8",
     fontSize: 42,
     fontWeight: "300",
     textAlign: "center",
     marginBottom: 8,
   },
   heroTitleGradient: {
-    color: "#10b981",
+    color: "#00FF88",
     fontSize: 48,
     fontWeight: "900",
     textAlign: "center",
@@ -530,70 +695,120 @@ const styles = StyleSheet.create({
     lineHeight: 52,
   },
   heroDescription: {
-    color: "#94a3b8",
+    color: "#A7F3D0",
     fontSize: 18,
     textAlign: "center",
     lineHeight: 28,
-    marginBottom: 32,
-    paddingHorizontal: 10,
+    marginBottom: 40,
+    paddingHorizontal: 20,
+  },
+  heroButtons: {
+    width: "100%",
+    gap: 16,
+    marginBottom: 50,
   },
   primaryButton: {
-    backgroundColor: "#10b981",
-    paddingVertical: 16,
+    backgroundColor: "#00FF88",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 18,
     paddingHorizontal: 32,
     borderRadius: 16,
-    width: "100%",
-    alignItems: "center",
-    marginBottom: 14,
-    shadowColor: "#10b981",
+    shadowColor: "#00FF88",
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.4,
     shadowRadius: 20,
     elevation: 10,
   },
   primaryButtonText: {
-    color: "#fff",
-    fontSize: 16,
+    color: "#0E1410",
+    fontSize: 18,
     fontWeight: "bold",
+    marginRight: 8,
   },
   secondaryButton: {
     backgroundColor: "transparent",
     borderWidth: 2,
-    borderColor: "rgba(16, 185, 129, 0.3)",
-    paddingVertical: 16,
+    borderColor: "rgba(0, 255, 136, 0.3)",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 18,
     paddingHorizontal: 32,
     borderRadius: 16,
-    width: "100%",
-    alignItems: "center",
-    marginBottom: 50,
   },
   secondaryButtonText: {
-    color: "#10b981",
-    fontSize: 16,
+    color: "#00FF88",
+    fontSize: 18,
     fontWeight: "bold",
+    marginLeft: 8,
+  },
+  carouselContainer: {
+    width: "100%",
+    marginBottom: 50,
+  },
+  featureCarouselItem: {
+    alignItems: "center",
+    padding: 20,
+    backgroundColor: "rgba(0, 255, 136, 0.05)",
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "rgba(0, 255, 136, 0.1)",
+    marginHorizontal: 10,
+  },
+  featureCarouselIcon: {
+    padding: 16,
+    borderRadius: 16,
+    marginBottom: 16,
+  },
+  featureCarouselTitle: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginBottom: 8,
+  },
+  featureCarouselDescription: {
+    color: "#A7F3D0",
+    fontSize: 14,
+    textAlign: "center",
+    lineHeight: 20,
   },
   stats: {
     flexDirection: "row",
     justifyContent: "space-around",
+    alignItems: "center",
     width: "100%",
-    marginTop: 40,
+    backgroundColor: "rgba(0, 255, 136, 0.05)",
+    borderRadius: 20,
+    padding: 24,
+    borderWidth: 1,
+    borderColor: "rgba(0, 255, 136, 0.1)",
   },
   statItem: {
     alignItems: "center",
+    flex: 1,
+  },
+  statDivider: {
+    width: 1,
+    height: 40,
+    backgroundColor: "rgba(0, 255, 136, 0.2)",
   },
   statValue: {
-    color: "#10b981",
+    color: "#00FF88",
     fontSize: 32,
     fontWeight: "900",
     marginBottom: 4,
   },
   statLabel: {
-    color: "#64748b",
+    color: "#A7F3D0",
     fontSize: 12,
+    fontWeight: "600",
   },
   section: {
     padding: 20,
-    marginTop: 10,
+    marginTop: 20,
   },
   sectionTitle: {
     color: "#fff",
@@ -603,26 +818,26 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   sectionSubtitle: {
-    color: "#94a3b8",
+    color: "#A7F3D0",
     fontSize: 16,
     textAlign: "center",
     marginBottom: 40,
+    lineHeight: 24,
   },
   gradientText: {
-    color: "#10b981",
+    color: "#00FF88",
   },
   featureCard: {
     flexDirection: "row",
-    backgroundColor: "rgba(30, 41, 59, 0.5)",
+    backgroundColor: "rgba(30, 41, 59, 0.3)",
     borderWidth: 1,
-    borderColor: "rgba(71, 85, 105, 0.5)",
-    borderRadius: 24,
+    borderColor: "rgba(0, 255, 136, 0.1)",
+    borderRadius: 20,
     padding: 24,
     marginBottom: 16,
     alignItems: "center",
   },
   featureIconContainer: {
-    backgroundColor: "rgba(16, 185, 129, 0.1)",
     padding: 16,
     borderRadius: 16,
     marginRight: 16,
@@ -637,7 +852,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   featureDescription: {
-    color: "#94a3b8",
+    color: "#A7F3D0",
     fontSize: 14,
     lineHeight: 22,
   },
@@ -645,67 +860,83 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
+    gap: 16,
   },
   serviceCard: {
     width: "48%",
-    backgroundColor: "rgba(30, 41, 59, 0.5)",
+    backgroundColor: "rgba(0, 255, 136, 0.05)",
     borderWidth: 1,
-    borderColor: "rgba(51, 65, 85, 1)",
+    borderColor: "rgba(0, 255, 136, 0.1)",
     borderRadius: 16,
     padding: 20,
-    marginBottom: 14,
+    alignItems: "center",
   },
   serviceIcon: {
-    backgroundColor: "rgba(16, 185, 129, 0.2)",
-    padding: 12,
-    borderRadius: 12,
-    alignSelf: "flex-start",
-    marginBottom: 12,
+    backgroundColor: "rgba(0, 255, 136, 0.1)",
+    padding: 16,
+    borderRadius: 16,
+    marginBottom: 16,
   },
   serviceTitle: {
     color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
-    marginBottom: 6,
+    marginBottom: 8,
+    textAlign: "center",
   },
   serviceDescription: {
-    color: "#94a3b8",
+    color: "#A7F3D0",
     fontSize: 12,
+    textAlign: "center",
+    lineHeight: 16,
   },
-  tipCard: {
-    backgroundColor: "rgba(16, 185, 129, 0.05)",
+  testimonialsScroll: {
+    marginHorizontal: -20,
+    paddingHorizontal: 20,
+  },
+  testimonialCard: {
+    width: 280,
+    backgroundColor: "rgba(0, 255, 136, 0.05)",
     borderWidth: 1,
-    borderColor: "rgba(16, 185, 129, 0.2)",
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 14,
+    borderColor: "rgba(0, 255, 136, 0.1)",
+    borderRadius: 20,
+    padding: 24,
+    marginRight: 16,
   },
-  tipHeader: {
+  testimonialHeader: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 10,
+    marginBottom: 16,
   },
-  tipIconContainer: {
-    backgroundColor: "rgba(16, 185, 129, 0.2)",
-    padding: 8,
-    borderRadius: 10,
+  testimonialAvatar: {
+    fontSize: 32,
     marginRight: 12,
   },
-  tipTitle: {
+  testimonialName: {
     color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
+    marginBottom: 2,
   },
-  tipDescription: {
-    color: "#94a3b8",
-    fontSize: 13,
+  testimonialRole: {
+    color: "#00FF88",
+    fontSize: 12,
+  },
+  testimonialText: {
+    color: "#A7F3D0",
+    fontSize: 14,
+    lineHeight: 22,
+    marginBottom: 16,
+  },
+  rating: {
+    flexDirection: "row",
   },
   ctaCard: {
-    backgroundColor: "rgba(16, 185, 129, 0.1)",
+    backgroundColor: "rgba(0, 255, 136, 0.1)",
     borderWidth: 1,
-    borderColor: "rgba(16, 185, 129, 0.3)",
+    borderColor: "rgba(0, 255, 136, 0.2)",
     borderRadius: 24,
-    padding: 32,
+    padding: 40,
     alignItems: "center",
   },
   ctaTitle: {
@@ -716,57 +947,109 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   ctaDescription: {
-    color: "#cbd5e1",
+    color: "#A7F3D0",
     fontSize: 16,
     textAlign: "center",
     marginBottom: 30,
+    lineHeight: 24,
   },
-  input: {
-    width: "100%",
-    backgroundColor: "rgba(30, 41, 59, 0.5)",
-    borderWidth: 1,
-    borderColor: "rgba(71, 85, 105, 1)",
-    borderRadius: 12,
-    padding: 16,
+  ctaStats: {
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 24,
+    marginBottom: 30,
+  },
+  ctaStat: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  ctaStatText: {
     color: "#fff",
-    fontSize: 16,
-    marginBottom: 12,
+    fontSize: 8.5,
+    fontWeight: "600",
+  },
+  ctaButton: {
+    backgroundColor: "#00FF88",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 18,
+    paddingHorizontal: 32,
+    borderRadius: 16,
+    width: "100%",
+    marginBottom: 20,
+    shadowColor: "#00FF88",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.4,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  ctaButtonText: {
+    color: "#0E1410",
+    fontSize: 18,
+    fontWeight: "bold",
+    marginRight: 8,
+  },
+  ctaFooter: {
+    color: "#A7F3D0",
+    fontSize: 14,
+    textAlign: "center",
+  },
+  ctaFooterLink: {
+    color: "#00FF88",
+    fontWeight: "bold",
   },
   footer: {
     borderTopWidth: 1,
-    borderTopColor: "rgba(51, 65, 85, 1)",
+    borderTopColor: "rgba(0, 255, 136, 0.1)",
     padding: 40,
+  },
+  footerContent: {
     alignItems: "center",
   },
   footerLogo: {
     flexDirection: "row",
     alignItems: "center",
+    marginBottom: 16,
+  },
+  footerTagline: {
+    color: "#A7F3D0",
+    fontSize: 14,
+    textAlign: "center",
     marginBottom: 24,
+    lineHeight: 20,
   },
   socialIcons: {
     flexDirection: "row",
+    gap: 12,
     marginBottom: 24,
   },
   socialButton: {
-    backgroundColor: "rgba(30, 41, 59, 0.5)",
+    backgroundColor: "rgba(0, 255, 136, 0.1)",
     borderWidth: 1,
-    borderColor: "rgba(71, 85, 105, 1)",
+    borderColor: "rgba(0, 255, 136, 0.2)",
     width: 44,
     height: 44,
     borderRadius: 12,
     justifyContent: "center",
     alignItems: "center",
-    marginHorizontal: 6,
-  },
-  footerText: {
-    color: "#64748b",
-    fontSize: 13,
-    textAlign: "center",
   },
   footerLinks: {
-    color: "#475569",
-    fontSize: 11,
-    marginTop: 8,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    gap: 20,
+    marginBottom: 24,
+  },
+  footerLink: {
+    color: "#00FF88",
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  footerCopyright: {
+    color: "#64748b",
+    fontSize: 12,
     textAlign: "center",
   },
 });

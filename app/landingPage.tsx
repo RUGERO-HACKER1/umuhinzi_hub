@@ -1,6 +1,4 @@
-import React from "react";
-import TipsAndGuidesScreen from "./tips"; // Adjust path if needed
-
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -8,177 +6,367 @@ import {
   StyleSheet,
   ScrollView,
   TextInput,
-  ImageBackground,
+  Animated,
 } from "react-native";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Link } from "expo-router";
+import { router } from "expo-router";
 
-export default function LandingPageScreen() {
+export default function ModernLandingPage() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const fadeAnim = new Animated.Value(0);
+  const slideAnim = new Animated.Value(50);
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 1000,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 800,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, []);
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container}>
-        {/* --- Hero Section --- */}
-        <ImageBackground
-          source={{
-            uri: "https://via.placeholder.com/400x300/228B22/FFFFFF?text=FARMING+BACKGROUND",
-          }} // Placeholder for background image
-          style={styles.heroBackground}
-          imageStyle={styles.heroImageStyle}
-        >
-          <View style={styles.overlay}>
-            <View style={styles.headerBar}>
-              <View style={styles.logoContainer}>
-                <Ionicons name="leaf" size={24} color="#00FF88" />
-                <Text style={styles.logoText}>umuhinzihub</Text>
+        {/* Animated Background Orbs */}
+        <View style={styles.backgroundOverlay}>
+          <View style={[styles.floatingOrb, styles.orb1]} />
+          <View style={[styles.floatingOrb, styles.orb2]} />
+          <View style={[styles.floatingOrb, styles.orb3]} />
+        </View>
+
+        {/* Navigation */}
+        <View style={styles.nav}>
+          <View style={styles.navContent}>
+            <View style={styles.logo}>
+              <View style={styles.logoIcon}>
+                <Ionicons name="leaf" size={24} color="#0a0e14" />
               </View>
-              <View style={styles.headerIcons}>
-                <TouchableOpacity>
-                  <Ionicons name="menu-outline" size={28} color="#fff" />
-                </TouchableOpacity>
-                <TouchableOpacity style={{ marginLeft: 10 }}>
-                  <Ionicons name="information-circle-outline" size={24} color="#fff" />
-                </TouchableOpacity>
-              </View>
+              <Text style={styles.logoText}>UmuhinziHub</Text>
             </View>
 
-            <View style={styles.heroContent}>
-              <Text style={styles.heroTitle}>Empowering</Text>
-              <Text style={styles.heroSubtitle}>Smallholder Farmers</Text>
-              <Text style={styles.heroDescription}>
-                Smart farming advice, market access, and financial support
-                tailored to your unique needs
-              </Text>
-              <TouchableOpacity style={styles.getStartedButton}>
-                <Text style={styles.getStartedButtonText}>Get Started</Text>
+            <TouchableOpacity
+              style={styles.menuButton}
+              onPress={() => setIsMenuOpen(!isMenuOpen)}
+            >
+              <Ionicons
+                name={isMenuOpen ? "close" : "menu"}
+                size={28}
+                color="#fff"
+              />
+            </TouchableOpacity>
+          </View>
+
+          {isMenuOpen && (
+            <View style={styles.mobileMenu}>
+<TouchableOpacity
+  style={styles.mobileMenuItem}
+  onPress={() => router.push("/tips")} // 👈 navigates to your Tips file
+>
+  <Text style={styles.mobileMenuText}>Features</Text>
+</TouchableOpacity>
+<TouchableOpacity
+  style={styles.mobileMenuItem}
+  onPress={() => router.push("/About")}
+>
+  <Text style={styles.mobileMenuText}>About</Text>
+</TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.mobileMenuItemBorder}
+                onPress={() => router.push("/LogIn")}
+              >
+                <Text style={styles.mobileMenuTextGreen}>Log In</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.learnMoreButton}>
-                <Text style={styles.learnMoreButtonText}>Learn More</Text>
+              <TouchableOpacity
+                style={styles.mobileMenuItemGradient}
+                onPress={() => router.push("/SignUp")}
+              >
+                <Text style={styles.mobileMenuTextBold}>Get Started</Text>
               </TouchableOpacity>
+            </View>
+          )}
+        </View>
+
+        {/* Hero Section */}
+        <Animated.View
+          style={[
+            styles.hero,
+            {
+              opacity: fadeAnim,
+              transform: [{ translateY: slideAnim }],
+            },
+          ]}
+        >
+          <View style={styles.badge}>
+            <Text style={styles.badgeIcon}>✨</Text>
+            <Text style={styles.badgeText}>Transforming African Agriculture</Text>
+          </View>
+
+          <Text style={styles.heroTitleLight}>Empowering</Text>
+          <Text style={styles.heroTitleGradient}>Smallholder Farmers</Text>
+
+          <Text style={styles.heroDescription}>
+            Smart farming intelligence, direct market access, and community
+            support—all in your pocket
+          </Text>
+
+          <TouchableOpacity
+            style={styles.primaryButton}
+            onPress={() => router.push("/SignUp")}
+          >
+            <Text style={styles.primaryButtonText}>Start Growing Smarter →</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.secondaryButton}
+            onPress={() => router.push("/LogIn")}
+          >
+            <Text style={styles.secondaryButtonText}>Watch Demo</Text>
+          </TouchableOpacity>
+
+          {/* Stats */}
+          <View style={styles.stats}>
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>50K+</Text>
+              <Text style={styles.statLabel}>Active Farmers</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>95%</Text>
+              <Text style={styles.statLabel}>Satisfaction</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Text style={styles.statValue}>40%</Text>
+              <Text style={styles.statLabel}>Yield Increase</Text>
             </View>
           </View>
-        </ImageBackground>
+        </Animated.View>
 
-        {/* --- Why Choose Section --- */}
+        {/* Features Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>
-            Why Choose <Text style={{ color: "#00FF88" }}>UmuhinziHub</Text> ?
+            Why Choose <Text style={styles.gradientText}>UmuhinziHub</Text>?
+          </Text>
+          <Text style={styles.sectionSubtitle}>
+            Cutting-edge technology meets traditional farming wisdom
           </Text>
 
           <View style={styles.featureCard}>
-            <MaterialCommunityIcons name="weather-partly-cloudy" size={32} color="#FCD34D" />
+            <View style={styles.featureIconContainer}>
+              <MaterialCommunityIcons
+                name="weather-partly-cloudy"
+                size={32}
+                color="#10b981"
+              />
+            </View>
             <View style={styles.featureTextContent}>
-              <Text style={styles.featureTitle}>Instant Weather & Soil Tips</Text>
+              <Text style={styles.featureTitle}>AI Weather Intelligence</Text>
               <Text style={styles.featureDescription}>
-                Get real-time data and actionable advice for your local farm conditions.
+                Real-time hyper-local forecasts with smart farming recommendations
               </Text>
             </View>
           </View>
+
           <View style={styles.featureCard}>
-            <MaterialCommunityIcons name="currency-usd" size={32} color="#00FF88" />
+            <View style={styles.featureIconContainer}>
+              <MaterialCommunityIcons
+                name="currency-usd"
+                size={32}
+                color="#10b981"
+              />
+            </View>
             <View style={styles.featureTextContent}>
-              <Text style={styles.featureTitle}>Real-time Market Prices</Text>
+              <Text style={styles.featureTitle}>Live Market Dynamics</Text>
               <Text style={styles.featureDescription}>
-                Access up-to-date market information to optimize your selling.
+                Access real-time pricing and connect directly with buyers
               </Text>
             </View>
           </View>
+
           <View style={styles.featureCard}>
-            <MaterialCommunityIcons name="sprout" size={32} color="#34D399" />
+            <View style={styles.featureIconContainer}>
+              <MaterialCommunityIcons name="sprout" size={32} color="#10b981" />
+            </View>
             <View style={styles.featureTextContent}>
-              <Text style={styles.featureTitle}>Sustainable Practices</Text>
+              <Text style={styles.featureTitle}>Regenerative Farming</Text>
               <Text style={styles.featureDescription}>
-                Learn eco-friendly farming methods for a healthier planet.
+                Sustainable practices that heal the earth and boost yields
               </Text>
             </View>
           </View>
         </View>
 
-        {/* --- Services Offered Section --- */}
+        {/* Services Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>
-            Services <Text style={{ color: "#00FF88" }}>Offered</Text>
+            Services <Text style={styles.gradientText}>Offered</Text>
           </Text>
-          <View style={styles.grid}>
-            <View style={styles.gridItem}>
-              <MaterialCommunityIcons name="flower-tulip-outline" size={32} color="#00FF88" />
-              <Text style={styles.gridItemTitle}>Planting Tips</Text>
-              <Text style={styles.gridItemDescription}>Dont miss a planting day</Text>
+
+          <View style={styles.serviceGrid}>
+            <View style={styles.serviceCard}>
+              <View style={styles.serviceIcon}>
+                <MaterialCommunityIcons
+                  name="flower-tulip-outline"
+                  size={28}
+                  color="#10b981"
+                />
+              </View>
+              <Text style={styles.serviceTitle}>Planting Intelligence</Text>
+              <Text style={styles.serviceDescription}>
+                Never miss optimal planting windows
+              </Text>
             </View>
-            <View style={styles.gridItem}>
-              <MaterialCommunityIcons name="seed-outline" size={32} color="#00FF88" />
-              <Text style={styles.gridItemTitle}>Marketplace</Text>
-              <Text style={styles.gridItemDescription}>Buy and sell before selling</Text>
+
+            <View style={styles.serviceCard}>
+              <View style={styles.serviceIcon}>
+                <MaterialCommunityIcons
+                  name="shopping-outline"
+                  size={28}
+                  color="#10b981"
+                />
+              </View>
+              <Text style={styles.serviceTitle}>Digital Marketplace</Text>
+              <Text style={styles.serviceDescription}>Sell direct, earn more</Text>
             </View>
-            <View style={styles.gridItem}>
-              <MaterialCommunityIcons name="calendar-check-outline" size={32} color="#00FF88" />
-              <Text style={styles.gridItemTitle}>Reminders/Updates</Text>
-              <Text style={styles.gridItemDescription}>For up to date information</Text>
+
+            <View style={styles.serviceCard}>
+              <View style={styles.serviceIcon}>
+                <MaterialCommunityIcons
+                  name="calendar-check-outline"
+                  size={28}
+                  color="#10b981"
+                />
+              </View>
+              <Text style={styles.serviceTitle}>Smart Reminders</Text>
+              <Text style={styles.serviceDescription}>
+                Automated crop care alerts
+              </Text>
             </View>
-            <View style={styles.gridItem}>
-              <MaterialCommunityIcons name="account-group-outline" size={32} color="#00FF88" />
-              <Text style={styles.gridItemTitle}>Community Contact</Text>
-              <Text style={styles.gridItemDescription}>Access local networks</Text>
+
+            <View style={styles.serviceCard}>
+              <View style={styles.serviceIcon}>
+                <MaterialCommunityIcons
+                  name="account-group-outline"
+                  size={28}
+                  color="#10b981"
+                />
+              </View>
+              <Text style={styles.serviceTitle}>Farmer Network</Text>
+              <Text style={styles.serviceDescription}>Connect with local experts</Text>
             </View>
           </View>
         </View>
-        {/* --- Tips & Guides Section --- */}
-<TipsAndGuidesScreen />
 
-        {/* --- Join Our Network Section --- */}
-        <ImageBackground
-          source={{
-            uri: "https://via.placeholder.com/400x200/556B2F/FFFFFF?text=FIELD+BACKGROUND",
-          }} // Placeholder for background image
-          style={[styles.section, styles.networkSection]}
-          imageStyle={styles.networkImageStyle}
-        >
-          <View style={styles.overlay}>
-            <Text style={styles.sectionTitle}>
-              Join Our <Text style={{ color: "#00FF88" }}>Network</Text>
+        {/* Tips Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>
+            Pro <Text style={styles.gradientText}>Tips</Text>
+          </Text>
+
+          <View style={styles.tipCard}>
+            <View style={styles.tipHeader}>
+              <View style={styles.tipIconContainer}>
+                <MaterialCommunityIcons
+                  name="white-balance-sunny"
+                  size={20}
+                  color="#10b981"
+                />
+              </View>
+              <Text style={styles.tipTitle}>Seasonal Planting</Text>
+            </View>
+            <Text style={styles.tipDescription}>
+              Optimize yields by planting according to microclimates
             </Text>
+          </View>
+
+          <View style={styles.tipCard}>
+            <View style={styles.tipHeader}>
+              <View style={styles.tipIconContainer}>
+                <MaterialCommunityIcons name="water" size={20} color="#10b981" />
+              </View>
+              <Text style={styles.tipTitle}>Water Management</Text>
+            </View>
+            <Text style={styles.tipDescription}>
+              Smart irrigation reduces water use by 40%
+            </Text>
+          </View>
+
+          <View style={styles.tipCard}>
+            <View style={styles.tipHeader}>
+              <View style={styles.tipIconContainer}>
+                <MaterialCommunityIcons name="sprout" size={20} color="#10b981" />
+              </View>
+              <Text style={styles.tipTitle}>Soil Health</Text>
+            </View>
+            <Text style={styles.tipDescription}>
+              Cover crops increase organic matter and profits
+            </Text>
+          </View>
+        </View>
+
+        {/* CTA Section */}
+        <View style={styles.section}>
+          <View style={styles.ctaCard}>
+            <Text style={styles.ctaTitle}>
+              Join <Text style={styles.gradientText}>50,000+</Text> Farmers
+            </Text>
+            <Text style={styles.ctaDescription}>
+              Start your journey to smarter, more profitable farming today
+            </Text>
+
             <TextInput
               style={styles.input}
-              placeholder="Your Name"
-              placeholderTextColor="#aaa"
+              placeholder="Your name"
+              placeholderTextColor="#64748b"
             />
             <TextInput
               style={styles.input}
-              placeholder="Email Address"
-              placeholderTextColor="#aaa"
+              placeholder="Email address"
+              placeholderTextColor="#64748b"
               keyboardType="email-address"
             />
-            <TextInput
-              style={[styles.input, styles.textArea]}
-              placeholder="Tell us about your farming needs"
-              placeholderTextColor="#aaa"
-              multiline
-            />
-            <TouchableOpacity style={styles.getStartedButton}>
-              <Text style={styles.getStartedButtonText}>Get Started Today</Text>
+
+            <TouchableOpacity
+              style={styles.primaryButton}
+              onPress={() => router.push("/SignUp")}
+            >
+              <Text style={styles.primaryButtonText}>Get Started Today</Text>
             </TouchableOpacity>
           </View>
-        </ImageBackground>
+        </View>
 
-        {/* --- Footer --- */}
+        {/* Footer */}
         <View style={styles.footer}>
+          <View style={styles.footerLogo}>
+            <View style={styles.logoIcon}>
+              <Ionicons name="leaf" size={24} color="#0a0e14" />
+            </View>
+            <Text style={styles.logoText}>UmuhinziHub</Text>
+          </View>
+
           <View style={styles.socialIcons}>
             <TouchableOpacity style={styles.socialButton}>
-              <Ionicons name="logo-whatsapp" size={24} color="#ccc" />
+              <Ionicons name="logo-whatsapp" size={24} color="#94a3b8" />
             </TouchableOpacity>
             <TouchableOpacity style={styles.socialButton}>
-              <Ionicons name="logo-facebook" size={24} color="#ccc" />
+              <Ionicons name="logo-facebook" size={24} color="#94a3b8" />
             </TouchableOpacity>
             <TouchableOpacity style={styles.socialButton}>
-              <Ionicons name="mail-outline" size={24} color="#ccc" />
+              <Ionicons name="mail-outline" size={24} color="#94a3b8" />
             </TouchableOpacity>
           </View>
+
           <Text style={styles.footerText}>
             © 2024 UmuhinziHub. All rights reserved.
           </Text>
-          <Text style={styles.footerText}>
-            Privacy Policy | Terms of Service
-          </Text>
+          <Text style={styles.footerLinks}>Privacy Policy | Terms of Service</Text>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -188,199 +376,397 @@ export default function LandingPageScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#0E1410",
+    backgroundColor: "#0a0e14",
   },
   container: {
     flexGrow: 1,
-    backgroundColor: "#0E1410",
+    backgroundColor: "#0a0e14",
   },
-  heroBackground: {
-    width: "100%",
-    minHeight: 450, // Adjust as needed
-    justifyContent: "flex-start",
+  backgroundOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    opacity: 0.15,
   },
-  heroImageStyle: {
-    resizeMode: "cover",
-    opacity: 0.3, // Make image darker to let text pop
+  floatingOrb: {
+    position: "absolute",
+    borderRadius: 999,
   },
-  overlay: {
-    flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)", // Dark overlay for text readability
-    paddingBottom: 20,
+  orb1: {
+    top: "10%",
+    left: "5%",
+    width: 250,
+    height: 250,
+    backgroundColor: "#10b981",
+    opacity: 0.3,
   },
-  headerBar: {
+  orb2: {
+    top: "30%",
+    right: "10%",
+    width: 300,
+    height: 300,
+    backgroundColor: "#06b6d4",
+    opacity: 0.2,
+  },
+  orb3: {
+    bottom: "15%",
+    left: "30%",
+    width: 280,
+    height: 280,
+    backgroundColor: "#84cc16",
+    opacity: 0.25,
+  },
+  nav: {
+    position: "relative",
+    zIndex: 1000,
+    backgroundColor: "rgba(15, 23, 42, 0.85)",
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(100, 116, 139, 0.2)",
+  },
+  navContent: {
     flexDirection: "row",
+    alignItems: "center",
     justifyContent: "space-between",
-    alignItems: "center",
-    padding: 15,
+    padding: 16,
   },
-  logoContainer: {
+  logo: {
     flexDirection: "row",
     alignItems: "center",
+  },
+  logoIcon: {
+    backgroundColor: "#10b981",
+    padding: 8,
+    borderRadius: 12,
   },
   logoText: {
-    color: "#fff",
-    fontSize: 18,
+    color: "#10b981",
+    fontSize: 22,
     fontWeight: "bold",
-    marginLeft: 5,
+    marginLeft: 10,
   },
-  headerIcons: {
+  menuButton: {
+    backgroundColor: "rgba(30, 41, 59, 0.5)",
+    padding: 10,
+    borderRadius: 12,
+  },
+  mobileMenu: {
+    backgroundColor: "rgba(15, 23, 42, 0.95)",
+    borderTopWidth: 1,
+    borderTopColor: "rgba(100, 116, 139, 0.2)",
+    padding: 16,
+  },
+  mobileMenuItem: {
+    padding: 14,
+    marginBottom: 8,
+    borderRadius: 12,
+  },
+  mobileMenuText: {
+    color: "#fff",
+    fontSize: 16,
+  },
+  mobileMenuItemBorder: {
+    padding: 14,
+    marginBottom: 8,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "rgba(16, 185, 129, 0.3)",
+  },
+  mobileMenuTextGreen: {
+    color: "#10b981",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  mobileMenuItemGradient: {
+    padding: 14,
+    borderRadius: 12,
+    backgroundColor: "#10b981",
+  },
+  mobileMenuTextBold: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  hero: {
+    paddingTop: 60,
+    paddingBottom: 60,
+    paddingHorizontal: 20,
+    alignItems: "center",
+  },
+  badge: {
     flexDirection: "row",
     alignItems: "center",
+    backgroundColor: "rgba(16, 185, 129, 0.1)",
+    borderWidth: 1,
+    borderColor: "rgba(16, 185, 129, 0.3)",
+    paddingVertical: 10,
+    paddingHorizontal: 18,
+    borderRadius: 50,
+    marginBottom: 30,
   },
-  heroContent: {
-    padding: 20,
-    marginTop: 50, // Push content down from header
+  badgeIcon: {
+    fontSize: 16,
+    marginRight: 8,
   },
-  heroTitle: {
-    color: "#fff",
-    fontSize: 28,
+  badgeText: {
+    color: "#10b981",
+    fontSize: 13,
+    fontWeight: "600",
+  },
+  heroTitleLight: {
+    color: "#cbd5e1",
+    fontSize: 42,
     fontWeight: "300",
+    textAlign: "center",
+    marginBottom: 8,
   },
-  heroSubtitle: {
-    color: "#00FF88",
-    fontSize: 34,
-    fontWeight: "bold",
-    lineHeight: 38,
+  heroTitleGradient: {
+    color: "#10b981",
+    fontSize: 48,
+    fontWeight: "900",
+    textAlign: "center",
+    marginBottom: 24,
+    lineHeight: 52,
   },
   heroDescription: {
-    color: "#ccc",
-    fontSize: 15,
-    marginTop: 15,
-    lineHeight: 22,
+    color: "#94a3b8",
+    fontSize: 18,
+    textAlign: "center",
+    lineHeight: 28,
+    marginBottom: 32,
+    paddingHorizontal: 10,
   },
-  getStartedButton: {
-    backgroundColor: "#00FF88",
-    paddingVertical: 14,
-    borderRadius: 10,
+  primaryButton: {
+    backgroundColor: "#10b981",
+    paddingVertical: 16,
+    paddingHorizontal: 32,
+    borderRadius: 16,
+    width: "100%",
     alignItems: "center",
-    marginTop: 25,
+    marginBottom: 14,
+    shadowColor: "#10b981",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.4,
+    shadowRadius: 20,
+    elevation: 10,
   },
-  getStartedButtonText: {
-    color: "#0E1410",
-    fontWeight: "bold",
+  primaryButtonText: {
+    color: "#fff",
     fontSize: 16,
+    fontWeight: "bold",
   },
-  learnMoreButton: {
-    borderColor: "#00FF88",
-    borderWidth: 1,
-    paddingVertical: 14,
-    borderRadius: 10,
+  secondaryButton: {
+    backgroundColor: "transparent",
+    borderWidth: 2,
+    borderColor: "rgba(16, 185, 129, 0.3)",
+    paddingVertical: 16,
+    paddingHorizontal: 32,
+    borderRadius: 16,
+    width: "100%",
     alignItems: "center",
-    marginTop: 10,
+    marginBottom: 50,
   },
-  learnMoreButtonText: {
-    color: "#00FF88",
-    fontWeight: "bold",
+  secondaryButtonText: {
+    color: "#10b981",
     fontSize: 16,
+    fontWeight: "bold",
+  },
+  stats: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    width: "100%",
+    marginTop: 40,
+  },
+  statItem: {
+    alignItems: "center",
+  },
+  statValue: {
+    color: "#10b981",
+    fontSize: 32,
+    fontWeight: "900",
+    marginBottom: 4,
+  },
+  statLabel: {
+    color: "#64748b",
+    fontSize: 12,
   },
   section: {
     padding: 20,
-    backgroundColor: "#1E261E", // Dark card background from your styles
     marginTop: 10,
-    borderRadius: 10,
-    marginHorizontal: 10, // Added margin to match the image's spacing
-  },
-  networkSection: {
-    backgroundColor: "transparent", // Background image will handle this
-    padding: 0,
-    overflow: "hidden", // Ensure image doesn't spill
-  },
-  networkImageStyle: {
-    resizeMode: "cover",
-    opacity: 0.2, // Make image darker
-    borderRadius: 10, // Match section border radius
   },
   sectionTitle: {
     color: "#fff",
-    fontSize: 22,
-    fontWeight: "bold",
+    fontSize: 36,
+    fontWeight: "900",
     textAlign: "center",
-    marginBottom: 20,
+    marginBottom: 12,
+  },
+  sectionSubtitle: {
+    color: "#94a3b8",
+    fontSize: 16,
+    textAlign: "center",
+    marginBottom: 40,
+  },
+  gradientText: {
+    color: "#10b981",
   },
   featureCard: {
     flexDirection: "row",
-    backgroundColor: "#2C3A4F", // Darker blue card
-    borderRadius: 10,
-    padding: 15,
-    marginBottom: 10,
+    backgroundColor: "rgba(30, 41, 59, 0.5)",
+    borderWidth: 1,
+    borderColor: "rgba(71, 85, 105, 0.5)",
+    borderRadius: 24,
+    padding: 24,
+    marginBottom: 16,
     alignItems: "center",
   },
+  featureIconContainer: {
+    backgroundColor: "rgba(16, 185, 129, 0.1)",
+    padding: 16,
+    borderRadius: 16,
+    marginRight: 16,
+  },
   featureTextContent: {
-    marginLeft: 15,
     flex: 1,
   },
   featureTitle: {
     color: "#fff",
-    fontSize: 16,
+    fontSize: 20,
     fontWeight: "bold",
+    marginBottom: 8,
   },
   featureDescription: {
-    color: "#ccc",
-    fontSize: 13,
-    marginTop: 5,
+    color: "#94a3b8",
+    fontSize: 14,
+    lineHeight: 22,
   },
-  grid: {
+  serviceGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
   },
-  gridItem: {
-    width: "48%", // Roughly half with some space
-    backgroundColor: "#2C3A4F",
-    borderRadius: 10,
-    padding: 15,
-    marginBottom: 10,
-    alignItems: "flex-start",
+  serviceCard: {
+    width: "48%",
+    backgroundColor: "rgba(30, 41, 59, 0.5)",
+    borderWidth: 1,
+    borderColor: "rgba(51, 65, 85, 1)",
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 14,
   },
-  gridItemTitle: {
+  serviceIcon: {
+    backgroundColor: "rgba(16, 185, 129, 0.2)",
+    padding: 12,
+    borderRadius: 12,
+    alignSelf: "flex-start",
+    marginBottom: 12,
+  },
+  serviceTitle: {
     color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
-    marginTop: 10,
+    marginBottom: 6,
   },
-  gridItemDescription: {
-    color: "#ccc",
+  serviceDescription: {
+    color: "#94a3b8",
     fontSize: 12,
-    marginTop: 5,
   },
-  input: {
-    backgroundColor: "#2C3A4F",
+  tipCard: {
+    backgroundColor: "rgba(16, 185, 129, 0.05)",
+    borderWidth: 1,
+    borderColor: "rgba(16, 185, 129, 0.2)",
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 14,
+  },
+  tipHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  tipIconContainer: {
+    backgroundColor: "rgba(16, 185, 129, 0.2)",
+    padding: 8,
     borderRadius: 10,
-    paddingHorizontal: 15,
-    paddingVertical: 12,
+    marginRight: 12,
+  },
+  tipTitle: {
     color: "#fff",
     fontSize: 16,
-    marginBottom: 10,
-    marginTop: 10, // Added space after section title
-    marginHorizontal: 15, // Added horizontal margin
+    fontWeight: "bold",
   },
-  textArea: {
-    minHeight: 80,
-    textAlignVertical: "top",
+  tipDescription: {
+    color: "#94a3b8",
+    fontSize: 13,
+  },
+  ctaCard: {
+    backgroundColor: "rgba(16, 185, 129, 0.1)",
+    borderWidth: 1,
+    borderColor: "rgba(16, 185, 129, 0.3)",
+    borderRadius: 24,
+    padding: 32,
+    alignItems: "center",
+  },
+  ctaTitle: {
+    color: "#fff",
+    fontSize: 32,
+    fontWeight: "900",
+    textAlign: "center",
+    marginBottom: 12,
+  },
+  ctaDescription: {
+    color: "#cbd5e1",
+    fontSize: 16,
+    textAlign: "center",
+    marginBottom: 30,
+  },
+  input: {
+    width: "100%",
+    backgroundColor: "rgba(30, 41, 59, 0.5)",
+    borderWidth: 1,
+    borderColor: "rgba(71, 85, 105, 1)",
+    borderRadius: 12,
+    padding: 16,
+    color: "#fff",
+    fontSize: 16,
+    marginBottom: 12,
   },
   footer: {
-    backgroundColor: "#111", // Even darker footer
-    padding: 20,
+    borderTopWidth: 1,
+    borderTopColor: "rgba(51, 65, 85, 1)",
+    padding: 40,
     alignItems: "center",
-    marginTop: 10,
+  },
+  footerLogo: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 24,
   },
   socialIcons: {
     flexDirection: "row",
-    marginBottom: 15,
+    marginBottom: 24,
   },
   socialButton: {
-    backgroundColor: "#2C3A4F",
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    backgroundColor: "rgba(30, 41, 59, 0.5)",
+    borderWidth: 1,
+    borderColor: "rgba(71, 85, 105, 1)",
+    width: 44,
+    height: 44,
+    borderRadius: 12,
     justifyContent: "center",
     alignItems: "center",
-    marginHorizontal: 8,
+    marginHorizontal: 6,
   },
   footerText: {
-    color: "#888",
-    fontSize: 12,
-    marginTop: 5,
+    color: "#64748b",
+    fontSize: 13,
+    textAlign: "center",
+  },
+  footerLinks: {
+    color: "#475569",
+    fontSize: 11,
+    marginTop: 8,
+    textAlign: "center",
   },
 });

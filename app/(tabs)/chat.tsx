@@ -18,6 +18,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import { Audio } from 'expo-av';
 import * as Speech from 'expo-speech';
+import { useTheme } from '../contexts/ThemeContext';
+import { getThemeColors } from '@/constants/Theme';
 
 interface Message {
   id: number;
@@ -47,6 +49,11 @@ export default function AuraFarmerChat() {
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
   const scrollViewRef = useRef<ScrollView>(null);
 
+  // ⭐⭐⭐ THEME SETUP ⭐⭐⭐
+  const { theme, currentTheme, setTheme, toggleTheme } = useTheme();
+  const colors = getThemeColors(currentTheme);
+  const styles = createStyles(colors);
+
   const languages = [
     { code: 'Kinyarwanda', name: 'Kinyarwanda' },
     { code: 'English', name: 'English' },
@@ -54,8 +61,7 @@ export default function AuraFarmerChat() {
     { code: 'Swahili', name: 'Swahili' }
   ];
 
-  // Auto scroll to bottom when 
-  //  message
+  // Auto scroll to bottom when message
   useEffect(() => {
     setTimeout(() => {
       scrollViewRef.current?.scrollToEnd({ animated: true });
@@ -321,38 +327,54 @@ export default function AuraFarmerChat() {
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
       >
         {/* Header */}
-        <View style={styles.header}>
+        <View style={[styles.header, { backgroundColor: colors.background, borderBottomColor: colors.border }]}>
           <View style={styles.headerLeft}>
-            <View style={styles.aiIcon}>
-              <MaterialCommunityIcons name="brain" size={24} color="#00FF88" />
-              <View style={styles.statusDot} />
+            <View style={[styles.aiIcon, { backgroundColor: `${colors.primary}20` }]}>
+              <MaterialCommunityIcons name="brain" size={24} color={colors.primary} />
+              <View style={[styles.statusDot, { backgroundColor: colors.success, borderColor: colors.background }]} />
             </View>
             <View>
-              <Text style={styles.headerTitle}>Umuhinzi AI</Text>
+              <Text style={[styles.headerTitle, { color: colors.primary }]}>Umuhinzi AI</Text>
               <View style={styles.headerSubtitle}>
-                <Ionicons name="flash" size={10} color="#00FF88" />
-                <Text style={styles.headerSubtitleText}>Powered by AI • {getLanguageName(language)}</Text>
+                <Ionicons name="flash" size={10} color={colors.primary} />
+                <Text style={[styles.headerSubtitleText, { color: colors.primary }]}>Powered by AI • {getLanguageName(language)}</Text>
               </View>
             </View>
           </View>
-          <TouchableOpacity 
-            style={styles.languageDropdown}
-            onPress={() => setShowLanguages(!showLanguages)}
-          >
-            <Text style={styles.languageText}>{getLanguageName(language)}</Text>
-            <Ionicons name="chevron-down" size={16} color="#00FF88" />
-          </TouchableOpacity>
+          
+          <View style={styles.headerRight}>
+            {/* Theme Toggle Button */}
+            <TouchableOpacity 
+              style={[styles.themeToggle, { backgroundColor: `${colors.primary}20` }]}
+              onPress={toggleTheme}
+            >
+              <Ionicons
+                name={currentTheme === 'dark' ? "moon" : "sunny"}
+                size={18}
+                color={colors.primary}
+              />
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={[styles.languageDropdown, { backgroundColor: colors.card, borderColor: colors.border }]}
+              onPress={() => setShowLanguages(!showLanguages)}
+            >
+              <Text style={[styles.languageText, { color: colors.text }]}>{getLanguageName(language)}</Text>
+              <Ionicons name="chevron-down" size={16} color={colors.primary} />
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Language Selector Modal */}
         {showLanguages && (
-          <View style={styles.languageModal}>
+          <View style={[styles.languageModal, { backgroundColor: colors.card, borderColor: colors.border }]}>
             {languages.map((lang) => (
               <TouchableOpacity
                 key={lang.code}
                 style={[
                   styles.languageOption,
-                  language === lang.code && styles.languageOptionActive
+                  { borderBottomColor: colors.border },
+                  language === lang.code && [styles.languageOptionActive, { backgroundColor: `${colors.primary}20` }]
                 ]}
                 onPress={() => {
                   setLanguage(lang.code);
@@ -362,12 +384,13 @@ export default function AuraFarmerChat() {
               >
                 <Text style={[
                   styles.languageOptionText,
-                  language === lang.code && styles.languageOptionTextActive
+                  { color: colors.text },
+                  language === lang.code && [styles.languageOptionTextActive, { color: colors.primary }]
                 ]}>
                   {lang.name}
                 </Text>
                 {language === lang.code && (
-                  <Ionicons name="checkmark" size={20} color="#00FF88" />
+                  <Ionicons name="checkmark" size={20} color={colors.primary} />
                 )}
               </TouchableOpacity>
             ))}
@@ -391,14 +414,14 @@ export default function AuraFarmerChat() {
               ]}
             >
               {msg.type === 'ai' && (
-                <View style={styles.aiIconSmall}>
-                  <MaterialCommunityIcons name="brain" size={16} color="#00FF88" />
+                <View style={[styles.aiIconSmall, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                  <MaterialCommunityIcons name="brain" size={16} color={colors.primary} />
                 </View>
               )}
               
               <View style={[
                 styles.bubble,
-                msg.type === 'ai' ? styles.bubbleAi : styles.bubbleUser
+                msg.type === 'ai' ? [styles.bubbleAi, { backgroundColor: colors.card, borderColor: colors.border }] : [styles.bubbleUser, { backgroundColor: colors.primary }]
               ]}>
                 {msg.image && (
                   <Image 
@@ -407,29 +430,29 @@ export default function AuraFarmerChat() {
                     resizeMode="cover"
                   />
                 )}
-                <Text style={styles.bubbleText}>{msg.text}</Text>
+                <Text style={[styles.bubbleText, { color: colors.text }]}>{msg.text}</Text>
                 
                 {msg.type === 'ai' && (
                   <View style={styles.messageActions}>
                     <TouchableOpacity 
-                      style={styles.actionButton}
+                      style={[styles.actionButton, { backgroundColor: `${colors.primary}10`, borderColor: colors.border }]}
                       onPress={() => speakText(msg.text)}
                     >
-                      <Ionicons name="volume-medium" size={16} color="#00FF88" />
+                      <Ionicons name="volume-medium" size={16} color={colors.primary} />
                     </TouchableOpacity>
                     <TouchableOpacity 
-                      style={styles.actionButton}
+                      style={[styles.actionButton, { backgroundColor: `${colors.primary}10`, borderColor: colors.border }]}
                       onPress={() => saveMessage(msg.id)}
                     >
-                      <Ionicons name="bookmark-outline" size={16} color="#00FF88" />
+                      <Ionicons name="bookmark-outline" size={16} color={colors.primary} />
                     </TouchableOpacity>
                   </View>
                 )}
               </View>
               
               {msg.type === 'user' && (
-                <View style={styles.userIcon}>
-                  <View style={styles.userAvatar} />
+                <View style={[styles.userIcon, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                  <View style={[styles.userAvatar, { backgroundColor: colors.primary }]} />
                 </View>
               )}
             </View>
@@ -437,15 +460,15 @@ export default function AuraFarmerChat() {
           
           {isProcessing && (
             <View style={[styles.messageRow, styles.messageRowAi]}>
-              <View style={styles.aiIconSmall}>
-                <MaterialCommunityIcons name="brain" size={16} color="#00FF88" />
+              <View style={[styles.aiIconSmall, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                <MaterialCommunityIcons name="brain" size={16} color={colors.primary} />
               </View>
-              <View style={[styles.bubble, styles.bubbleAi]}>
+              <View style={[styles.bubble, styles.bubbleAi, { backgroundColor: colors.card, borderColor: colors.border }]}>
                 <View style={styles.typingIndicator}>
-                  <View style={[styles.typingDot, styles.typingDot1]} />
-                  <View style={[styles.typingDot, styles.typingDot2]} />
-                  <View style={[styles.typingDot, styles.typingDot3]} />
-                  <Text style={styles.typingText}>
+                  <View style={[styles.typingDot, styles.typingDot1, { backgroundColor: colors.primary }]} />
+                  <View style={[styles.typingDot, styles.typingDot2, { backgroundColor: colors.primary }]} />
+                  <View style={[styles.typingDot, styles.typingDot3, { backgroundColor: colors.primary }]} />
+                  <Text style={[styles.typingText, { color: colors.primary }]}>
                     {language === 'Kinyarwanda' ? 'Narakora...' : 
                      language === 'French' ? 'En train de rédiger...' :
                      language === 'Swahili' ? 'Inaandika...' : 'Analyzing...'}
@@ -458,68 +481,69 @@ export default function AuraFarmerChat() {
 
         {/* Image Preview */}
         {selectedImage && (
-          <View style={styles.imagePreview}>
+          <View style={[styles.imagePreview, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <Image source={{ uri: selectedImage }} style={styles.previewImage} />
-            <Text style={styles.previewText}>
+            <Text style={[styles.previewText, { color: colors.text }]}>
               {language === 'Kinyarwanda' ? 'Ifoto yoherejwe' :
                language === 'French' ? 'Image prête à envoyer' :
                language === 'Swahili' ? 'Picha tayari kutuma' : 'Ready to send'}
             </Text>
             <TouchableOpacity onPress={removeImage} style={styles.removeButton}>
-              <Ionicons name="close-circle" size={24} color="#FF4444" />
+              <Ionicons name="close-circle" size={24} color={colors.error} />
             </TouchableOpacity>
           </View>
         )}
 
         {/* Input Area */}
-        <View style={styles.inputContainer}>
-          <View style={styles.inputBar}>
+        <View style={[styles.inputContainer, { backgroundColor: colors.background }]}>
+          <View style={[styles.inputBar, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <TextInput
-              style={styles.textInput}
+              style={[styles.textInput, { color: colors.text }]}
               placeholder={
                 language === 'Kinyarwanda' ? 'Baza ku bicurashwe, inzoka...' :
                 language === 'French' ? 'Demandez sur les cultures, ravageurs...' :
                 language === 'Swahili' ? 'Uliza kuhusu mazao, wadudu...' :
                 'Ask about crops, pests...'
               }
-              placeholderTextColor="#888"
+              placeholderTextColor={colors.textSecondary}
               value={inputText}
               onChangeText={setInputText}
               multiline
               maxLength={500}
             />
             <TouchableOpacity 
-              style={[styles.inputIcon, isRecording && styles.recordingActive]}
+              style={[styles.inputIcon, isRecording && [styles.recordingActive, { backgroundColor: `${colors.error}20` }]]}
               onPress={handleVoiceInput}
             >
               <Ionicons 
                 name={isRecording ? "stop-circle" : "mic-outline"} 
                 size={22} 
-                color={isRecording ? "#FF4444" : "#00FF88"} 
+                color={isRecording ? colors.error : colors.primary} 
               />
             </TouchableOpacity>
             <TouchableOpacity style={styles.inputIcon} onPress={handleImagePick}>
-              <Ionicons name="image-outline" size={22} color="#00FF88" />
+              <Ionicons name="image-outline" size={22} color={colors.primary} />
             </TouchableOpacity>
             <TouchableOpacity style={styles.inputIcon} onPress={handleCameraLaunch}>
-              <Ionicons name="camera-outline" size={22} color="#00FF88" />
+              <Ionicons name="camera-outline" size={22} color={colors.primary} />
             </TouchableOpacity>
           </View>
           <TouchableOpacity 
             style={[
               styles.sendButton,
-              (!inputText.trim() && !selectedImage) && styles.sendButtonDisabled
+              { backgroundColor: colors.primary },
+              (!inputText.trim() && !selectedImage) && [styles.sendButtonDisabled, { backgroundColor: colors.gray400 }]
             ]}
             onPress={handleSend}
             disabled={!inputText.trim() && !selectedImage}
           >
-            <Ionicons name="send" size={18} color="#0E1410" />
+            <Ionicons name="send" size={18} color={colors.background} />
           </TouchableOpacity>
         </View>
         
         <View style={styles.footer}>
-          <Ionicons name="information-circle-outline" size={11} color="#888" />
-          <Text style={styles.footerText}>
+          <Ionicons name="information-circle-outline" size={11} color={colors.textSecondary} />
+          <Text style={[styles.footerText, { color: colors.textSecondary }]}>
             {language === 'Kinyarwanda' ? 'Inama za AI ni inama. Kubibazo byikaze, soma umwarimu wubuhinzi.' :
              language === 'French' ? 'Les suggestions IA sont consultatives. Pour problèmes critiques contactez un agent.' :
              language === 'Swahili' ? 'Mapendekezo ya AI ni ya ushauri. Kwa matatizo makuwasiliana na afisa.' :
@@ -531,11 +555,11 @@ export default function AuraFarmerChat() {
   );
 }
 
-// ... (keep the same styles as before)
-const styles = StyleSheet.create({
+// ⭐⭐⭐ REPLACE StyleSheet.create WITH THIS FUNCTION ⭐⭐⭐
+const createStyles = (colors: any) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#0E1410',
+    backgroundColor: colors.background,
   },
   container: {
     flex: 1,
@@ -547,18 +571,24 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#1E3A2E',
-    backgroundColor: '#0E1410',
   },
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
   },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  themeToggle: {
+    padding: 8,
+    borderRadius: 8,
+  },
   aiIcon: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: 'rgba(0, 255, 136, 0.2)',
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
@@ -570,12 +600,9 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: '#7FFF00',
     borderWidth: 2,
-    borderColor: '#0E1410',
   },
   headerTitle: {
-    color: '#00FF88',
     fontSize: 18,
     fontWeight: 'bold',
     marginLeft: 10,
@@ -587,7 +614,6 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   headerSubtitleText: {
-    color: '#00FF88',
     fontSize: 9,
     marginLeft: 3,
     opacity: 0.8,
@@ -595,15 +621,12 @@ const styles = StyleSheet.create({
   languageDropdown: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1E3A2E',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: 'rgba(0, 255, 136, 0.3)',
   },
   languageText: {
-    color: '#fff',
     marginRight: 6,
     fontSize: 12,
     fontWeight: '600',
@@ -612,13 +635,11 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 70,
     right: 16,
-    backgroundColor: '#1E3A2E',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: 'rgba(0, 255, 136, 0.3)',
     zIndex: 1000,
     minWidth: 160,
-    shadowColor: '#00FF88',
+    shadowColor: colors.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -631,17 +652,14 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 14,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
   },
   languageOptionActive: {
-    backgroundColor: 'rgba(0, 255, 136, 0.2)',
+    
   },
   languageOptionText: {
-    color: '#fff',
     fontSize: 13,
   },
   languageOptionTextActive: {
-    color: '#00FF88',
     fontWeight: '600',
   },
   chatContainer: {
@@ -666,52 +684,43 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: '#1E3A2E',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 6,
     borderWidth: 1,
-    borderColor: 'rgba(0, 255, 136, 0.3)',
   },
   userIcon: {
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: '#1E3A2E',
     justifyContent: 'center',
     alignItems: 'center',
     marginLeft: 6,
     borderWidth: 1,
-    borderColor: 'rgba(0, 255, 136, 0.3)',
   },
   userAvatar: {
     width: 16,
     height: 16,
     borderRadius: 8,
-    backgroundColor: '#00FF88',
   },
   bubble: {
     borderRadius: 18,
     padding: 12,
     maxWidth: width * 0.75,
-    shadowColor: '#00FF88',
+    shadowColor: colors.primary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 3,
+    borderWidth: 1,
   },
   bubbleAi: {
-    backgroundColor: '#1E3A2E',
     borderTopLeftRadius: 4,
-    borderWidth: 1,
-    borderColor: 'rgba(0, 255, 136, 0.3)',
   },
   bubbleUser: {
-    backgroundColor: '#007D43',
     borderTopRightRadius: 4,
   },
   bubbleText: {
-    color: '#fff',
     fontSize: 14,
     lineHeight: 20,
   },
@@ -726,15 +735,13 @@ const styles = StyleSheet.create({
     marginTop: 10,
     paddingTop: 10,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.1)',
+    borderTopColor: colors.border,
     gap: 6,
   },
   actionButton: {
-    backgroundColor: 'rgba(0, 255, 136, 0.1)',
     padding: 6,
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: 'rgba(0, 255, 136, 0.3)',
   },
   typingIndicator: {
     flexDirection: 'row',
@@ -744,7 +751,6 @@ const styles = StyleSheet.create({
     width: 7,
     height: 7,
     borderRadius: 3.5,
-    backgroundColor: '#00FF88',
     marginRight: 3,
   },
   typingDot1: {
@@ -757,7 +763,6 @@ const styles = StyleSheet.create({
     opacity: 0.8,
   },
   typingText: {
-    color: '#00FF88',
     fontSize: 13,
     marginLeft: 6,
     opacity: 0.8,
@@ -765,13 +770,11 @@ const styles = StyleSheet.create({
   imagePreview: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1E3A2E',
     marginHorizontal: 12,
     marginTop: 8,
     padding: 10,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: 'rgba(0, 255, 136, 0.3)',
   },
   previewImage: {
     width: 50,
@@ -779,7 +782,6 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   previewText: {
-    color: '#fff',
     fontSize: 13,
     marginLeft: 10,
     flex: 1,
@@ -792,22 +794,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
     alignItems: 'center',
-    backgroundColor: '#0E1410',
   },
   inputBar: {
     flex: 1,
     flexDirection: 'row',
-    backgroundColor: '#1E3A2E',
     borderRadius: 24,
     paddingHorizontal: 12,
     alignItems: 'center',
     minHeight: 46,
     borderWidth: 1,
-    borderColor: 'rgba(0, 255, 136, 0.3)',
   },
   textInput: {
     flex: 1,
-    color: '#fff',
     fontSize: 14,
     maxHeight: 90,
     paddingVertical: 8,
@@ -817,18 +815,16 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
   recordingActive: {
-    backgroundColor: 'rgba(255, 68, 68, 0.2)',
     borderRadius: 18,
   },
   sendButton: {
     width: 46,
     height: 46,
     borderRadius: 23,
-    backgroundColor: '#00FF88',
     justifyContent: 'center',
     alignItems: 'center',
     marginLeft: 8,
-    shadowColor: '#00FF88',
+    shadowColor: colors.primary,
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.5,
     shadowRadius: 6,
@@ -836,7 +832,6 @@ const styles = StyleSheet.create({
   },
   sendButtonDisabled: {
     opacity: 0.4,
-    backgroundColor: '#666',
   },
   footer: {
     flexDirection: 'row',
@@ -847,7 +842,6 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   footerText: {
-    color: '#888',
     fontSize: 10,
     textAlign: 'center',
     flexShrink: 1,

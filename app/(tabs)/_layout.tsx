@@ -1,16 +1,22 @@
+// app/(tabs)/_layout.tsx
 import React from "react";
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { useTheme } from '../contexts/ThemeContext';
+import { getThemeColors } from '../../constants/Theme';
 
 export default function TabLayout() {
+  const { currentTheme } = useTheme();
+  const colors = getThemeColors(currentTheme);
+
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: "#00FF88",
-        tabBarInactiveTintColor: "#777",
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.textSecondary,
         tabBarStyle: {
-          backgroundColor: "#0E1410",
-          borderTopColor: "#1E261E",
+          backgroundColor: colors.card,
+          borderTopColor: colors.border,
           paddingBottom: 5,
           height: 60,
         },
@@ -59,6 +65,15 @@ export default function TabLayout() {
           title: "Profile",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="person-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="settings"
+        options={{
+          title: 'Settings',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="settings" size={size} color={color} />
           ),
         }}
       />

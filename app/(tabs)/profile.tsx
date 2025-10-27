@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   View,
   Text,
@@ -7,166 +7,338 @@ import {
   ScrollView,
   Image,
   Switch,
+  Animated,
+  Dimensions,
+  Alert,
+  Modal
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { router } from "expo-router";
+
+const { width: screenWidth } = Dimensions.get('window');
 
 export default function ProfileScreen() {
-  const [ubutumwa, setUbutumwa] = useState(true);
-  const [amakuru, setAmakuru] = useState(true);
+  const [notifications, setNotifications] = useState(true);
+  const [dataSync, setDataSync] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(30)).current;
+
+  React.useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 800,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 600,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, []);
+
+  const handleLogout = () => {
+    setShowLogoutModal(false);
+    Alert.alert(
+      "Log Out",
+      "Are you sure you want to log out?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel"
+        },
+        {
+          text: "Yes, Log Out",
+          onPress: () => router.replace("/LogIn"),
+          style: "destructive"
+        }
+      ]
+    );
+  };
+
+  const farmStats = [
+    { icon: "land-plots", value: "12.5", label: "Hectares", color: "#00FF88" },
+    { icon: "sprout", value: "4", label: "Crops", color: "#60A5FA" },
+    { icon: "basket", value: "Mar", label: "Yield", color: "#FCD34D" },
+    { icon: "calendar", value: "3", label: "Years", color: "#D8BFD8" },
+  ];
+
+  const mainCrops = [
+    { name: "Tomatoes", icon: "food-apple", color: "#EF4444" },
+    { name: "Potatoes", icon: "food-variant", color: "#F59E0B" },
+    { name: "Maize", icon: "corn", color: "#10B981" },
+    { name: "Cassava", icon: "carrot", color: "#8B5CF6" },
+  ];
+
+  const quickActions = [
+    { icon: "weather-cloudy", label: "Weather", screen: "/weather" },
+    { icon: "shopping", label: "Market", screen: "/market" },
+    { icon: "robot", label: "AURA AI", screen: "/chat" },
+    { icon: "camera", label: "Camera", screen: "/scan" },
+  ];
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <Text style={styles.screenTitle}>Profile</Text>
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <View style={styles.container}>
-          {/* --- Header --- */}
+      {/* Animated Background */}
+      <View style={styles.backgroundOverlay}>
+        <Animated.View style={[styles.floatingOrb, styles.orb1]} />
+        <Animated.View style={[styles.floatingOrb, styles.orb2]} />
+      </View>
+
+      <ScrollView 
+        contentContainerStyle={styles.scrollContainer}
+        showsVerticalScrollIndicator={false}
+      >
+        <Animated.View
+          style={{
+            opacity: fadeAnim,
+            transform: [{ translateY: slideAnim }],
+          }}
+        >
+          {/* Header */}
           <View style={styles.header}>
-            <Text style={styles.cardTitle}>Profile</Text>
-            <TouchableOpacity>
-              <Ionicons name="settings-outline" size={24} color="#ccc" />
+            <TouchableOpacity 
+              style={styles.backButton}
+              onPress={() => router.back()}
+            >
+              <Ionicons name="arrow-back" size={22} color="#00FF88" />
+            </TouchableOpacity>
+            <Text style={styles.screenTitle}>Profile</Text>
+            <TouchableOpacity style={styles.settingsButton}>
+              <Ionicons name="settings-outline" size={22} color="#00FF88" />
             </TouchableOpacity>
           </View>
 
-          {/* --- User Info --- */}
-          <View style={styles.userInfo}>
-            <View>
-              <Image
-                source={{
-                  uri: "https://via.placeholder.com/80/EEEEEE/000000?text=JB",
-                }} // Placeholder
-                style={styles.profileImage}
+          {/* Profile Card */}
+          <View style={styles.profileCard}>
+            <View style={styles.profileHeader}>
+              <View style={styles.avatarContainer}>
+                <Image
+                  source={{ uri: "https://images.unsplash.com/photo-1577221084711-3f49713cbe14?w=150&h=150&fit=crop&crop=face" }}
+                  style={styles.profileImage}
+                />
+                <TouchableOpacity 
+                  style={styles.editIcon}
+                  onPress={() => setIsEditing(true)}
+                >
+                  <Ionicons name="camera" size={14} color="#0E1410" />
+                </TouchableOpacity>
+              </View>
+              
+              <View style={styles.profileInfo}>
+                <Text style={styles.profileName}>Jean Baptiste</Text>
+                <View style={styles.locationContainer}>
+                  <Ionicons name="location" size={14} color="#00FF88" />
+                  <Text style={styles.profileLocation}>Musanze, Northern Province</Text>
+                </View>
+                <Text style={styles.memberSince}>Farmer since 2022</Text>
+              </View>
+            </View>
+
+            {/* Quick Stats */}
+            <View style={styles.statsGrid}>
+              {farmStats.map((stat, index) => (
+                <View key={index} style={styles.statCard}>
+                  <View style={[styles.statIcon, { backgroundColor: `${stat.color}20` }]}>
+                    <MaterialCommunityIcons name={stat.icon} size={20} color={stat.color} />
+                  </View>
+                  <Text style={styles.statValue}>{stat.value}</Text>
+                  <Text style={styles.statLabel}>{stat.label}</Text>
+                </View>
+              ))}
+            </View>
+
+            {/* Main Crops */}
+            <View style={styles.cropsSection}>
+              <Text style={styles.sectionTitle}>Main Crops</Text>
+              <View style={styles.cropsGrid}>
+                {mainCrops.map((crop, index) => (
+                  <View key={index} style={styles.cropItem}>
+                    <View style={[styles.cropIcon, { backgroundColor: `${crop.color}20` }]}>
+                      <MaterialCommunityIcons name={crop.icon} size={18} color={crop.color} />
+                    </View>
+                    <Text style={styles.cropName}>{crop.name}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          </View>
+
+          {/* Quick Actions */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Quick Actions</Text>
+            <View style={styles.actionsGrid}>
+              {quickActions.map((action, index) => (
+                <TouchableOpacity 
+                  key={index} 
+                  style={styles.actionButton}
+                  onPress={() => router.push(action.screen)}
+                >
+                  <View style={styles.actionIcon}>
+                    <MaterialCommunityIcons name={action.icon} size={24} color="#00FF88" />
+                  </View>
+                  <Text style={styles.actionLabel}>{action.label}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+
+          {/* Settings Section 1 */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Settings</Text>
+            
+            <TouchableOpacity style={styles.settingItem}>
+              <View style={styles.settingLeft}>
+                <View style={[styles.settingIcon, { backgroundColor: 'rgba(0, 255, 136, 0.2)' }]}>
+                  <Ionicons name="language-outline" size={20} color="#00FF88" />
+                </View>
+                <Text style={styles.settingText}>Language</Text>
+              </View>
+              <View style={styles.settingRight}>
+                <Text style={styles.settingValue}>English</Text>
+                <Ionicons name="chevron-forward" size={18} color="#64748b" />
+              </View>
+            </TouchableOpacity>
+
+            <View style={styles.settingItem}>
+              <View style={styles.settingLeft}>
+                <View style={[styles.settingIcon, { backgroundColor: 'rgba(96, 165, 250, 0.2)' }]}>
+                  <Ionicons name="notifications-outline" size={20} color="#60A5FA" />
+                </View>
+                <Text style={styles.settingText}>Notifications</Text>
+              </View>
+              <Switch
+                trackColor={{ false: "#334155", true: "#00FF88" }}
+                thumbColor="#ffffff"
+                onValueChange={setNotifications}
+                value={notifications}
               />
-              <TouchableOpacity style={styles.editIcon}>
-                <Ionicons name="pencil" size={16} color="#0E1410" />
+            </View>
+
+            <View style={styles.settingItem}>
+              <View style={styles.settingLeft}>
+                <View style={[styles.settingIcon, { backgroundColor: 'rgba(252, 211, 77, 0.2)' }]}>
+                  <Ionicons name="sync-outline" size={20} color="#FCD34D" />
+                </View>
+                <Text style={styles.settingText}>Auto Data Sync</Text>
+              </View>
+              <Switch
+                trackColor={{ false: "#334155", true: "#00FF88" }}
+                thumbColor="#ffffff"
+                onValueChange={setDataSync}
+                value={dataSync}
+              />
+            </View>
+
+            <TouchableOpacity style={styles.settingItem}>
+              <View style={styles.settingLeft}>
+                <View style={[styles.settingIcon, { backgroundColor: 'rgba(216, 191, 216, 0.2)' }]}>
+                  <Ionicons name="shield-checkmark-outline" size={20} color="#D8BFD8" />
+                </View>
+                <Text style={styles.settingText}>Privacy & Terms</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={18} color="#64748b" />
+            </TouchableOpacity>
+          </View>
+
+          {/* Settings Section 2 */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Support</Text>
+            
+            <TouchableOpacity style={styles.settingItem}>
+              <View style={styles.settingLeft}>
+                <View style={[styles.settingIcon, { backgroundColor: 'rgba(0, 255, 136, 0.2)' }]}>
+                  <Ionicons name="people-outline" size={20} color="#00FF88" />
+                </View>
+                <Text style={styles.settingText}>Contact Agriculture Expert</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={18} color="#64748b" />
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.settingItem}>
+              <View style={styles.settingLeft}>
+                <View style={[styles.settingIcon, { backgroundColor: 'rgba(96, 165, 250, 0.2)' }]}>
+                  <Ionicons name="flag-outline" size={20} color="#60A5FA" />
+                </View>
+                <Text style={styles.settingText}>Report an Issue</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={18} color="#64748b" />
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.settingItem}>
+              <View style={styles.settingLeft}>
+                <View style={[styles.settingIcon, { backgroundColor: 'rgba(252, 211, 77, 0.2)' }]}>
+                  <Ionicons name="help-circle-outline" size={20} color="#FCD34D" />
+                </View>
+                <Text style={styles.settingText}>FAQ & Help Center</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={18} color="#64748b" />
+            </TouchableOpacity>
+          </View>
+
+          {/* Data Export */}
+          <TouchableOpacity style={styles.exportButton}>
+            <View style={styles.exportIcon}>
+              <Ionicons name="download-outline" size={20} color="#00FF88" />
+            </View>
+            <Text style={styles.exportText}>Export Farm Data</Text>
+            <Ionicons name="chevron-forward" size={18} color="#64748b" />
+          </TouchableOpacity>
+
+          {/* Logout Button */}
+          <TouchableOpacity 
+            style={styles.logoutButton}
+            onPress={() => setShowLogoutModal(true)}
+          >
+            <Ionicons name="log-out-outline" size={20} color="#EF4444" />
+            <Text style={styles.logoutText}>Log Out</Text>
+          </TouchableOpacity>
+
+          {/* App Version */}
+          <View style={styles.versionContainer}>
+            <Text style={styles.versionText}>UmuhinziHub v1.0.0</Text>
+            <Text style={styles.copyright}>© 2024 - Transforming African Agriculture</Text>
+          </View>
+        </Animated.View>
+      </ScrollView>
+
+      {/* Logout Confirmation Modal */}
+      <Modal
+        visible={showLogoutModal}
+        transparent={true}
+        animationType="fade"
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalIcon}>
+              <Ionicons name="log-out-outline" size={40} color="#EF4444" />
+            </View>
+            <Text style={styles.modalTitle}>Log Out</Text>
+            <Text style={styles.modalMessage}>
+              Are you sure you want to log out? Youll need to sign in again to use our services.
+            </Text>
+            <View style={styles.modalButtons}>
+              <TouchableOpacity 
+                style={styles.modalCancel}
+                onPress={() => setShowLogoutModal(false)}
+              >
+                <Text style={styles.modalCancelText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={styles.modalConfirm}
+                onPress={handleLogout}
+              >
+                <Text style={styles.modalConfirmText}>Yes, Log Out</Text>
               </TouchableOpacity>
             </View>
-            <Text style={styles.profileName}>Jean Baptiste</Text>
-            <Text style={styles.profileLocation}>
-              Musanze, Amajyaruguru
-            </Text>
-            <Text style={styles.profileLocation}>
-              <Ionicons name="location-sharp" size={12} color="#00FF88" />{" "}
-              Rwanda
-            </Text>
           </View>
-
-          {/* --- Stats Card --- */}
-          <View style={styles.statsCard}>
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>12.5</Text>
-              <Text style={styles.statLabel}>Hekari</Text>
-            </View>
-            <View style={styles.statSeparator} />
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>4</Text>
-              <Text style={styles.statLabel}>Ibihingwa</Text>
-            </View>
-            <View style={styles.statSeparator} />
-            <View style={styles.statItem}>
-              <Text style={styles.statValue}>Mar</Text>
-              <Text style={styles.statLabel}>Umusaruro</Text>
-            </View>
-          </View>
-          <Text style={styles.statsNote}>
-            Ibihingwa bikomeye: Ibinyomoro, Ibirayi, Amakara
-          </Text>
-
-          {/* --- Settings Section 1 --- */}
-          <View style={styles.settingsSection}>
-            <Text style={styles.sectionTitle}>Igenamiterere</Text>
-            <TouchableOpacity style={styles.settingItem}>
-              <Ionicons name="language-outline" size={22} color="#ccc" />
-              <Text style={styles.settingText}>Ururimi</Text>
-              <Text style={styles.settingValue}>Kinyarwanda</Text>
-              <Ionicons name="chevron-forward" size={20} color="#555" />
-            </TouchableOpacity>
-            <View style={styles.settingItem}>
-              <Ionicons name="notifications-outline" size={22} color="#ccc" />
-              <Text style={styles.settingText}>Ubutumwa</Text>
-              <Switch
-                trackColor={{ false: "#333", true: "#00FF88" }}
-                thumbColor={ubutumwa ? "#f4f3f4" : "#f4f3f4"}
-                onValueChange={setUbutumwa}
-                value={ubutumwa}
-                style={{ marginLeft: "auto" }}
-              />
-            </View>
-            <View style={styles.settingItem}>
-              <Ionicons name="sync-outline" size={22} color="#ccc" />
-              <Text style={styles.settingText}>Guhinduranya amakuru</Text>
-              <Switch
-                trackColor={{ false: "#333", true: "#00FF88" }}
-                thumbColor={amakuru ? "#f4f3f4" : "#f4f3f4"}
-                onValueChange={setAmakuru}
-                value={amakuru}
-                style={{ marginLeft: "auto" }}
-              />
-            </View>
-            <TouchableOpacity style={styles.settingItem}>
-              <Ionicons name="shield-checkmark-outline" size={22} color="#ccc" />
-              <Text style={styles.settingText}>Ubwoba & Amategeko</Text>
-              <Ionicons
-                name="chevron-forward"
-                size={20}
-                color="#555"
-                style={{ marginLeft: "auto" }}
-              />
-            </TouchableOpacity>
-          </View>
-
-          {/* --- Settings Section 2 --- */}
-          <View style={styles.settingsSection}>
-            <Text style={styles.sectionTitle}>Ubufasha</Text>
-            <TouchableOpacity style={styles.settingItem}>
-              <Ionicons name="people-outline" size={22} color="#ccc" />
-              <Text style={styles.settingText}>
-                Vugana numukozi wubujyanama
-              </Text>
-              <Ionicons
-                name="chevron-forward"
-                size={20}
-                color="#555"
-                style={{ marginLeft: "auto" }}
-              />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.settingItem}>
-              <Ionicons name="flag-outline" size={22} color="#ccc" />
-              <Text style={styles.settingText}>Menyesha ikibazo</Text>
-              <Ionicons
-                name="chevron-forward"
-                size={20}
-                color="#555"
-                style={{ marginLeft: "auto" }}
-              />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.settingItem}>
-              <Ionicons name="help-circle-outline" size={22} color="#ccc" />
-              <Text style={styles.settingText}>Ibibazo bikunze kubazwa</Text>
-              <Ionicons
-                name="chevron-forward"
-                size={20}
-                color="#555"
-                style={{ marginLeft: "auto" }}
-              />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.settingItem}>
-              <Ionicons name="log-out-outline" size={22} color="#EF4444" />
-              <Text style={[styles.settingText, { color: "#EF4444" }]}>
-                Sohoka
-              </Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* --- Footer Button --- */}
-          <TouchableOpacity style={styles.footerButton}>
-            <Ionicons name="download-outline" size={20} color="#00FF88" />
-            <Text style={styles.footerButtonText}>
-              Kuraguza amakuru yubukonde
-            </Text>
-          </TouchableOpacity>
         </View>
-      </ScrollView>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -176,44 +348,82 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#0E1410",
   },
-  screenTitle: {
-    color: "#fff",
-    fontSize: 24,
-    fontWeight: "bold",
-    paddingHorizontal: 15,
-    paddingTop: 10,
+  backgroundOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  floatingOrb: {
+    position: "absolute",
+    borderRadius: 999,
+  },
+  orb1: {
+    top: "10%",
+    right: "-10%",
+    width: 150,
+    height: 150,
+    backgroundColor: "#00FF88",
+    opacity: 0.1,
+  },
+  orb2: {
+    bottom: "20%",
+    left: "-10%",
+    width: 200,
+    height: 200,
+    backgroundColor: "#60A5FA",
+    opacity: 0.08,
   },
   scrollContainer: {
-    paddingBottom: 20,
-  },
-  container: {
-    backgroundColor: "#191E2D", // Dark blue/purple card
-    margin: 15,
-    borderRadius: 20,
-    padding: 15,
+    flexGrow: 1,
+    paddingBottom: 30,
   },
   header: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    backgroundColor: "rgba(14, 20, 16, 0.95)",
   },
-  cardTitle: {
+  backButton: {
+    padding: 6,
+    backgroundColor: "rgba(0, 255, 136, 0.1)",
+    borderRadius: 8,
+  },
+  screenTitle: {
     color: "#fff",
     fontSize: 20,
     fontWeight: "bold",
   },
-  userInfo: {
+  settingsButton: {
+    padding: 6,
+    backgroundColor: "rgba(0, 255, 136, 0.1)",
+    borderRadius: 8,
+  },
+  profileCard: {
+    backgroundColor: "rgba(30, 38, 45, 0.95)",
+    margin: 20,
+    borderRadius: 20,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: "rgba(0, 255, 136, 0.1)",
+  },
+  profileHeader: {
+    flexDirection: "row",
     alignItems: "center",
-    marginTop: 20,
-    paddingBottom: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: "#2C3A4F",
+    marginBottom: 20,
+  },
+  avatarContainer: {
+    position: "relative",
+    marginRight: 16,
   },
   profileImage: {
     width: 80,
     height: 80,
     borderRadius: 40,
-    borderWidth: 2,
+    borderWidth: 3,
     borderColor: "#00FF88",
   },
   editIcon: {
@@ -227,92 +437,278 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 2,
-    borderColor: "#191E2D",
+    borderColor: "#1E262D",
+  },
+  profileInfo: {
+    flex: 1,
   },
   profileName: {
     color: "#fff",
     fontSize: 22,
     fontWeight: "bold",
-    marginTop: 10,
+    marginBottom: 4,
+  },
+  locationContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 4,
   },
   profileLocation: {
-    color: "#aaa",
+    color: "#A7F3D0",
     fontSize: 14,
-    marginTop: 2,
+    marginLeft: 6,
   },
-  statsCard: {
-    backgroundColor: "#2C3A4F",
-    borderRadius: 12,
+  memberSince: {
+    color: "#64748b",
+    fontSize: 12,
+  },
+  statsGrid: {
     flexDirection: "row",
-    justifyContent: "space-around",
-    paddingVertical: 15,
-    marginTop: 20,
+    justifyContent: "space-between",
+    marginBottom: 20,
   },
-  statItem: {
+  statCard: {
     alignItems: "center",
+    flex: 1,
+  },
+  statIcon: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 8,
   },
   statValue: {
     color: "#fff",
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: "bold",
+    marginBottom: 2,
   },
   statLabel: {
-    color: "#aaa",
+    color: "#A7F3D0",
     fontSize: 12,
-    marginTop: 2,
-  },
-  statSeparator: {
-    width: 1,
-    backgroundColor: "#445",
-  },
-  statsNote: {
-    color: "#aaa",
-    fontSize: 12,
-    marginTop: 10,
     textAlign: "center",
   },
-  settingsSection: {
-    marginTop: 25,
+  cropsSection: {
+    marginTop: 10,
+  },
+  section: {
+    backgroundColor: "rgba(30, 38, 45, 0.95)",
+    marginHorizontal: 20,
+    marginBottom: 16,
+    borderRadius: 16,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: "rgba(0, 255, 136, 0.1)",
   },
   sectionTitle: {
     color: "#fff",
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "bold",
-    marginBottom: 10,
+    marginBottom: 16,
+  },
+  cropsGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 12,
+  },
+  cropItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 255, 136, 0.05)",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "rgba(0, 255, 136, 0.1)",
+  },
+  cropIcon: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 8,
+  },
+  cropName: {
+    color: "#A7F3D0",
+    fontSize: 12,
+    fontWeight: "500",
+  },
+  actionsGrid: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  actionButton: {
+    alignItems: "center",
+    flex: 1,
+  },
+  actionIcon: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: "rgba(0, 255, 136, 0.1)",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: "rgba(0, 255, 136, 0.2)",
+  },
+  actionLabel: {
+    color: "#A7F3D0",
+    fontSize: 12,
+    textAlign: "center",
   },
   settingItem: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 14,
+    justifyContent: "space-between",
+    paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "#2C3A4F",
+    borderBottomColor: "rgba(255, 255, 255, 0.1)",
   },
-  settingText: {
-    color: "#ccc",
-    fontSize: 15,
-    marginLeft: 15,
-  },
-  settingValue: {
-    color: "#888",
-    fontSize: 14,
-    marginLeft: "auto",
-    marginRight: 10,
-  },
-  footerButton: {
+  settingLeft: {
     flexDirection: "row",
-    backgroundColor: "rgba(0, 255, 136, 0.15)",
-    borderColor: "#00FF88",
-    borderWidth: 1,
+    alignItems: "center",
+    flex: 1,
+  },
+  settingIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
     justifyContent: "center",
     alignItems: "center",
+    marginRight: 12,
+  },
+  settingText: {
+    color: "#fff",
+    fontSize: 16,
+    flex: 1,
+  },
+  settingRight: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  settingValue: {
+    color: "#64748b",
+    fontSize: 14,
+    marginRight: 8,
+  },
+  exportButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 255, 136, 0.05)",
+    marginHorizontal: 20,
+    marginBottom: 16,
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "rgba(0, 255, 136, 0.1)",
+  },
+  exportIcon: {
+    marginRight: 12,
+  },
+  exportText: {
+    color: "#00FF88",
+    fontSize: 16,
+    fontWeight: "600",
+    flex: 1,
+  },
+  logoutButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(239, 68, 68, 0.1)",
+    marginHorizontal: 20,
+    marginBottom: 20,
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "rgba(239, 68, 68, 0.2)",
+    gap: 8,
+  },
+  logoutText: {
+    color: "#EF4444",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  versionContainer: {
+    alignItems: "center",
+    paddingHorizontal: 20,
+  },
+  versionText: {
+    color: "#64748b",
+    fontSize: 12,
+    marginBottom: 4,
+  },
+  copyright: {
+    color: "#64748b",
+    fontSize: 10,
+    textAlign: "center",
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  modalContent: {
+    backgroundColor: "#1E262D",
+    borderRadius: 20,
+    padding: 24,
+    width: "100%",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "rgba(0, 255, 136, 0.1)",
+  },
+  modalIcon: {
+    marginBottom: 16,
+  },
+  modalTitle: {
+    color: "#fff",
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 8,
+    textAlign: "center",
+  },
+  modalMessage: {
+    color: "#A7F3D0",
+    fontSize: 14,
+    textAlign: "center",
+    lineHeight: 20,
+    marginBottom: 24,
+  },
+  modalButtons: {
+    flexDirection: "row",
+    gap: 12,
+    width: "100%",
+  },
+  modalCancel: {
+    flex: 1,
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
     paddingVertical: 12,
     borderRadius: 10,
-    marginTop: 25,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.2)",
   },
-  footerButtonText: {
-    color: "#00FF88",
-    fontWeight: "bold",
-    fontSize: 14,
-    marginLeft: 10,
+  modalCancelText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  modalConfirm: {
+    flex: 1,
+    backgroundColor: "#EF4444",
+    paddingVertical: 12,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  modalConfirmText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
   },
 });

@@ -32,15 +32,7 @@ export default function TabLayout() {
           ),
         }}
       />
-      <Tabs.Screen
-        name="market"
-        options={{
-          title: "Market",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="bar-chart-outline" size={size} color={color} />
-          ),
-        }}
-      />
+
       <Tabs.Screen
         name="crops"
         options={{
@@ -68,15 +60,7 @@ export default function TabLayout() {
           ),
         }}
       />
-      <Tabs.Screen
-        name="settings"
-        options={{
-          title: 'Settings',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="settings" size={size} color={color} />
-          ),
-        }}
-      />
+
     </Tabs>
   );
 }

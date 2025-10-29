@@ -956,7 +956,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     gap: 8,
   },
   ctaStatText: {
-    fontSize: 14,
+    fontSize: 84,
     fontWeight: "600",
   },
   ctaButton: {

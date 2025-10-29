@@ -35,7 +35,6 @@ export default function SignUp() {
   const fadeAnim = useState(new Animated.Value(0))[0];
   const slideAnim = useState(new Animated.Value(50))[0];
 
-  // ⭐⭐⭐ THEME SETUP - ADD THESE 3 LINES ⭐⭐⭐
   const { theme, currentTheme, setTheme, toggleTheme } = useTheme();
   const colors = getThemeColors(currentTheme);
   const styles = createStyles(colors);
@@ -97,21 +96,21 @@ export default function SignUp() {
     }, 2000);
   };
 
-  const farmTypes = [
-    { id: "vegetables", name: "Vegetables", icon: "carrot" },
-    { id: "fruits", name: "Fruits", icon: "apple" },
-    { id: "cereals", name: "Cereals", icon: "wheat" },
-    { id: "livestock", name: "Livestock", icon: "cow" },
-    { id: "poultry", name: "Poultry", icon: "egg" },
-    { id: "mixed", name: "Mixed Farming", icon: "sprout" },
-  ];
+  // const farmTypes = [
+  //   { id: "vegetables", name: "Vegetables", icon: "carrot" },
+  //   { id: "fruits", name: "Fruits", icon: "apple" },
+  //   { id: "cereals", name: "Cereals", icon: "wheat" },
+  //   { id: "livestock", name: "Livestock", icon: "cow" },
+  //   { id: "poultry", name: "Poultry", icon: "egg" },
+  //   { id: "mixed", name: "Mixed Farming", icon: "sprout" },
+  // ];
 
-  const farmerScales = [
-    { id: "small", name: "Smallholder (<1 Ha)", icon: "home" },
-    { id: "medium", name: "Medium (1-5 Ha)", icon: "account" },
-    { id: "large", name: "Large (>5 Ha)", icon: "scale" },
-    { id: "cooperative", name: "Cooperative", icon: "account-group" },
-  ];
+  // const farmerScales = [
+  //   { id: "small", name: "Smallholder (<1 Ha)", icon: "home" },
+  //   { id: "medium", name: "Medium (1-5 Ha)", icon: "account" },
+  //   { id: "large", name: "Large (>5 Ha)", icon: "scale" },
+  //   { id: "cooperative", name: "Cooperative", icon: "account-group" },
+  // ];
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -168,7 +167,7 @@ export default function SignUp() {
           </TouchableOpacity>
 
           {/* Farm Type Selection */}
-          <View style={styles.section}>
+          {/* <View style={styles.section}>
             <Text style={[styles.sectionTitle, { color: colors.text }]}>What do you farm? *</Text>
             <View style={styles.farmTypeGrid}>
               {farmTypes.map((type) => (
@@ -196,10 +195,10 @@ export default function SignUp() {
                 </TouchableOpacity>
               ))}
             </View>
-          </View>
+          </View> */}
 
           {/* Farm Scale Selection */}
-          <View style={styles.section}>
+          {/* <View style={styles.section}>
             <Text style={[styles.sectionTitle, { color: colors.text }]}>Farm Scale *</Text>
             <View style={styles.farmScaleGrid}>
               {farmerScales.map((scale) => (
@@ -216,7 +215,7 @@ export default function SignUp() {
                 </TouchableOpacity>
               ))}
             </View>
-          </View>
+          </View> */}
 
           {/* Form Fields */}
           <View style={[styles.form, { backgroundColor: colors.card, borderColor: colors.border }]}>

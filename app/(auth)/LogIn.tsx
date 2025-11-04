@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -25,15 +25,14 @@ export default function LogIn() {
   const [isLoading, setIsLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
 
-  const fadeAnim = useState(new Animated.Value(0))[0];
-  const slideAnim = useState(new Animated.Value(50))[0];
+  const fadeAnim = new Animated.Value(0);
+  const slideAnim = new Animated.Value(50);
 
-  // THEME SETUP - FIXED
-  const { theme, currentTheme, setTheme, toggleTheme } = useTheme();
+    const { currentTheme } = useTheme();
   const colors = getThemeColors(currentTheme);
   const styles = createStyles(colors);
 
-  useEffect(() => {
+  React.useEffect(() => {
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
@@ -63,25 +62,25 @@ export default function LogIn() {
     }, 1500);
   };
 
-  const quickLoginOptions = [
-    {
-      icon: "fingerprint",
-      label: "Use Biometric",
-      onPress: () => Alert.alert("Biometric", "Biometric login coming soon!")
-    },
-    {
-      icon: "phone-portrait",
-      label: "Quick PIN",
-      onPress: () => Alert.alert("PIN", "PIN login coming soon!")
-    }
-  ];
+  // const quickLoginOptions = [
+  //   {
+  //     icon: "fingerprint",
+  //     label: "Use Biometric",
+  //     onPress: () => Alert.alert("Biometric", "Biometric login coming soon!")
+  //   },
+  //   {
+  //     icon: "phone-portrait",
+  //     label: "Quick PIN",
+  //     onPress: () => Alert.alert("PIN", "PIN login coming soon!")
+  //   }
+  // ];
 
   return (
     <SafeAreaView style={styles.safeArea}>
       {/* Animated Background */}
       <View style={styles.backgroundOverlay}>
-        <Animated.View style={[styles.floatingOrb, styles.orb1, { backgroundColor: colors.primary }]} />
-        <Animated.View style={[styles.floatingOrb, styles.orb2, { backgroundColor: colors.info }]} />
+        <Animated.View style={[styles.floatingOrb, styles.orb1]} />
+        <Animated.View style={[styles.floatingOrb, styles.orb2]} />
       </View>
 
       <ScrollView 
@@ -100,13 +99,13 @@ export default function LogIn() {
               style={styles.backButton}
               onPress={() => router.back()}
             >
-              <Ionicons name="arrow-back" size={22} color={colors.primary} />
+              <Ionicons name="arrow-back" size={22} color="#00FF88" />
             </TouchableOpacity>
 
             <View style={styles.logoSection}>
               <View style={styles.logoContainer}>
-                <View style={[styles.logoGlow, { backgroundColor: colors.primary }]} />
-                <MaterialCommunityIcons name="farmer" size={44} color={colors.primary} />
+                <View style={styles.logoGlow} />
+                <MaterialCommunityIcons name="farmer" size={44} color="#00FF88" />
               </View>
               <Text style={styles.title}>Welcome Back Farmer!</Text>
               <Text style={styles.subtitle}>
@@ -115,61 +114,46 @@ export default function LogIn() {
             </View>
           </View>
 
-          {/* Theme Toggle Button */}
-          <TouchableOpacity 
-            style={[styles.themeToggle, { backgroundColor: `${colors.primary}20` }]}
-            onPress={toggleTheme}
-          >
-            <Ionicons
-              name={currentTheme === 'dark' ? "moon" : "sunny"}
-              size={20}
-              color={colors.primary}
-            />
-            <Text style={[styles.themeToggleText, { color: colors.primary }]}>
-              {currentTheme === 'dark' ? 'Dark' : 'Light'} Mode
-            </Text>
-          </TouchableOpacity>
-
           {/* Quick Stats */}
-          <View style={[styles.statsSection, { backgroundColor: `${colors.primary}10`, borderColor: colors.border }]}>
+          {/* <View style={styles.statsSection}>
             <View style={styles.statItem}>
-              <Text style={[styles.statNumber, { color: colors.primary }]}>50K+</Text>
-              <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Farmers</Text>
+              <Text style={styles.statNumber}>50K+</Text>
+              <Text style={styles.statLabel}>Farmers</Text>
             </View>
-            <View style={[styles.statDivider, { backgroundColor: colors.border }]} />
+            <View style={styles.statDivider} />
             <View style={styles.statItem}>
-              <Text style={[styles.statNumber, { color: colors.primary }]}>40%</Text>
-              <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Yield Increase</Text>
+              <Text style={styles.statNumber}>40%</Text>
+              <Text style={styles.statLabel}>Yield Increase</Text>
             </View>
-            <View style={[styles.statDivider, { backgroundColor: colors.border }]} />
+            <View style={styles.statDivider} />
             <View style={styles.statItem}>
-              <Text style={[styles.statNumber, { color: colors.primary }]}>95%</Text>
-              <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Satisfaction</Text>
+              <Text style={styles.statNumber}>95%</Text>
+              <Text style={styles.statLabel}>Satisfaction</Text>
             </View>
-          </View>
+          </View> */}
 
           {/* Login Form */}
-          <View style={[styles.form, { backgroundColor: colors.card, borderColor: colors.border }]}>
-            <Text style={[styles.label, { color: colors.textSecondary }]}>Phone Number or Email</Text>
-            <View style={[styles.inputContainer, { backgroundColor: colors.card, borderColor: colors.border }]}>
-              <Ionicons name="person-outline" size={20} color={colors.primary} style={styles.inputIcon} />
+          <View style={styles.form}>
+            <Text style={styles.label}>Phone Number or Email</Text>
+            <View style={styles.inputContainer}>
+              <Ionicons name="person-outline" size={20} color="#00FF88" style={styles.inputIcon} />
               <TextInput
-                style={[styles.input, { color: colors.text }]}
+                style={styles.input}
                 placeholder="Enter your phone number or email"
-                placeholderTextColor={colors.textSecondary}
+                placeholderTextColor="#64748b"
                 value={emailOrPhone}
                 onChangeText={setEmailOrPhone}
                 autoCapitalize="none"
               />
             </View>
 
-            <Text style={[styles.label, { color: colors.textSecondary }]}>Password</Text>
-            <View style={[styles.inputContainer, { backgroundColor: colors.card, borderColor: colors.border }]}>
-              <Ionicons name="lock-closed-outline" size={20} color={colors.primary} style={styles.inputIcon} />
+            <Text style={styles.label}>Password</Text>
+            <View style={styles.inputContainer}>
+              <Ionicons name="lock-closed-outline" size={20} color="#00FF88" style={styles.inputIcon} />
               <TextInput
-                style={[styles.input, { color: colors.text }]}
+                style={styles.input}
                 placeholder="Enter your password"
-                placeholderTextColor={colors.textSecondary}
+                placeholderTextColor="#64748b"
                 secureTextEntry={!showPassword}
                 value={password}
                 onChangeText={setPassword}
@@ -178,7 +162,7 @@ export default function LogIn() {
                 <Ionicons 
                   name={showPassword ? "eye-off-outline" : "eye-outline"} 
                   size={20} 
-                  color={colors.primary} 
+                  color="#00FF88" 
                   style={styles.eyeIcon} 
                 />
               </TouchableOpacity>
@@ -190,98 +174,94 @@ export default function LogIn() {
                 style={styles.rememberMe}
                 onPress={() => setRememberMe(!rememberMe)}
               >
-                <View style={[
-                  styles.checkbox, 
-                  { borderColor: colors.primary },
-                  rememberMe && [styles.checkboxChecked, { backgroundColor: colors.primary }]
-                ]}>
-                  {rememberMe && <Ionicons name="checkmark" size={14} color={colors.background} />}
+                <View style={[styles.checkbox, rememberMe && styles.checkboxChecked]}>
+                  {rememberMe && <Ionicons name="checkmark" size={14} color="#0E1410" />}
                 </View>
-                <Text style={[styles.rememberMeText, { color: colors.textSecondary }]}>Remember me</Text>
+                <Text style={styles.rememberMeText}>Remember me</Text>
               </TouchableOpacity>
 
               <TouchableOpacity>
                 <Link href="/ForgotPassword" style={styles.forgotLink}>
-                  <Text style={[styles.forgotText, { color: colors.primary }]}>Forgot Password?</Text>
+                  <Text style={styles.forgotText}>Forgot Password?</Text>
                 </Link>
               </TouchableOpacity>
             </View>
 
             {/* Login Button */}
             <TouchableOpacity 
-              style={[styles.button, { backgroundColor: colors.primary }, isLoading && styles.buttonDisabled]}
+              style={[styles.button, isLoading && styles.buttonDisabled]}
               onPress={handleLogin}
               disabled={isLoading}
             >
               {isLoading ? (
                 <View style={styles.loadingContainer}>
-                  <Ionicons name="reload" size={20} color={colors.background} />
-                  <Text style={[styles.buttonText, { color: colors.background }]}>Logging In...</Text>
+                  <Ionicons name="reload" size={20} color="#0E1410" />
+                  <Text style={styles.buttonText}>Logging In...</Text>
                 </View>
               ) : (
                 <>
-                  <MaterialCommunityIcons name="login" size={20} color={colors.background} />
-                  <Text style={[styles.buttonText, { color: colors.background }]}>Log In to My Farm</Text>
-                  <Ionicons name="arrow-forward" size={18} color={colors.background} />
+                  <MaterialCommunityIcons name="login" size={20} color="#0E1410" />
+                  <Text style={styles.buttonText}>Log In to My Farm</Text>
+                  <Ionicons name="arrow-forward" size={18} color="#0E1410" />
                 </>
               )}
             </TouchableOpacity>
 
             {/* Quick Login Options */}
-            <View style={styles.quickLoginSection}>
-              <Text style={[styles.quickLoginTitle, { color: colors.textSecondary }]}>Quick Access</Text>
+            {/* <View style={styles.quickLoginSection}>
+              <Text style={styles.quickLoginTitle}>Quick Access</Text>
               <View style={styles.quickLoginOptions}>
                 {quickLoginOptions.map((option, index) => (
                   <TouchableOpacity
                     key={index}
-                    style={[styles.quickLoginButton, { backgroundColor: `${colors.primary}10`, borderColor: colors.border }]}
+                    style={styles.quickLoginButton}
                     onPress={option.onPress}
                   >
-                    <Ionicons name={option.icon as any} size={20} color={colors.primary} />
-                    <Text style={[styles.quickLoginText, { color: colors.primary }]}>{option.label}</Text>
+                    <Ionicons name={option.icon as any} size={20} color="#00FF88" />
+                    <Text style={styles.quickLoginText}>{option.label}</Text>
                   </TouchableOpacity>
                 ))}
               </View>
-            </View>
+            </View> */}
 
             {/* Divider */}
             <View style={styles.divider}>
-              <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
-              <Text style={[styles.dividerText, { color: colors.textSecondary }]}>or</Text>
-              <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
+              <View style={styles.dividerLine} />
+              <Text style={styles.dividerText}>or</Text>
+              <View style={styles.dividerLine} />
             </View>
 
             {/* Sign Up Link */}
             <View style={styles.footer}>
-              <Text style={[styles.footerText, { color: colors.textSecondary }]}>
+              <Text style={styles.footerText}>
                 New to UmuhinziHub?{" "}
                 <Link href="/SignUp" style={styles.signUpLink}>
-                  <Text style={[styles.signUpLinkText, { color: colors.primary }]}>Create Farmer Account</Text>
+                  <Text style={styles.signUpLinkText}>Create Farmer Account</Text>
                 </Link>
               </Text>
             </View>
           </View>
 
           {/* Benefits Card */}
-          <View style={[styles.benefitsCard, { backgroundColor: `${colors.primary}10`, borderColor: colors.border }]}>
+          {/* <View style={styles.benefitsCard}>
             <View style={styles.benefitsHeader}>
-              <MaterialCommunityIcons name="weather-cloudy" size={24} color={colors.primary} />
-              <Text style={[styles.benefitsTitle, { color: colors.primary }]}>Todays Farming Tip</Text>
+              <MaterialCommunityIcons name="weather-cloudy" size={24} color="#00FF88" />
+              <Text style={styles.benefitsTitle}>Todays Farming Tip</Text>
             </View>
-            <Text style={[styles.benefitsDescription, { color: colors.textSecondary }]}>
+            <Text style={styles.benefitsDescription}>
               Check weather forecasts regularly and plan your irrigation accordingly. 
               Our AI predicts rainfall with 95% accuracy for your specific location.
             </Text>
             <View style={styles.benefitsFooter}>
-              <Ionicons name="sparkles" size={16} color={colors.primary} />
-              <Text style={[styles.benefitsFooterText, { color: colors.textSecondary }]}>Powered by AURA AI</Text>
+              <Ionicons name="sparkles" size={16} color="#00FF88" />
+              <Text style={styles.benefitsFooterText}>Powered by AURA AI</Text>
             </View>
-          </View>
+          </View> */}
 
           {/* Security Note */}
           <View style={styles.securityNote}>
-            <Ionicons name="shield-checkmark" size={16} color={colors.primary} />
-            <Text style={[styles.securityText, { color: colors.textSecondary }]}>
+            <Ionicons name="shield-checkmark" size={16} color="#00FF88" />
+            <Text style={styles.securityText}>
               Your farming data is secure and encrypted
             </Text>
           </View>
@@ -292,9 +272,15 @@ export default function LogIn() {
 }
 
 const createStyles = (colors: any) => StyleSheet.create({
+  container: {
+    backgroundColor: colors.background, // Dynamic color
+  },
+  text: {
+    color: colors.text, // Dynamic color
+  },
   safeArea: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: "#0E1410",
   },
   backgroundOverlay: {
     position: "absolute",
@@ -306,49 +292,37 @@ const createStyles = (colors: any) => StyleSheet.create({
   floatingOrb: {
     position: "absolute",
     borderRadius: 999,
-    opacity: 0.1,
   },
   orb1: {
     top: "10%",
     right: "-10%",
     width: 120,
     height: 120,
+    backgroundColor: "#00FF88",
+    opacity: 0.1,
   },
   orb2: {
     bottom: "15%",
     left: "-10%",
     width: 180,
     height: 180,
+    backgroundColor: "#60A5FA",
     opacity: 0.08,
   },
-  container: {
-    flexGrow: 1,
-    padding: 20,
-    paddingBottom: 40,
-    backgroundColor: colors.background,
-  },
+  // container: {
+  //   flexGrow: 1,
+  //   padding: 20,
+  //   paddingBottom: 40,
+  // },
   header: {
     marginBottom: 10,
   },
   backButton: {
     padding: 6,
-    backgroundColor: `${colors.primary}20`,
+    backgroundColor: "rgba(0, 255, 136, 0.1)",
     borderRadius: 8,
     alignSelf: "flex-start",
     marginBottom: 20,
-  },
-  themeToggle: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 12,
-    borderRadius: 12,
-    marginBottom: 20,
-    gap: 8,
-  },
-  themeToggleText: {
-    fontSize: 14,
-    fontWeight: '600',
   },
   logoSection: {
     alignItems: "center",
@@ -364,52 +338,61 @@ const createStyles = (colors: any) => StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
+    backgroundColor: "#00FF88",
     opacity: 0.2,
     position: "absolute",
   },
   title: {
+    color: "#fff",
     fontSize: 26,
     fontWeight: "bold",
     textAlign: "center",
     marginBottom: 8,
-    color: colors.text,
   },
   subtitle: {
+    color: "#A7F3D0",
     textAlign: "center",
     fontSize: 16,
     lineHeight: 22,
-    color: colors.textSecondary,
   },
   statsSection: {
     flexDirection: "row",
+    backgroundColor: "rgba(0, 255, 136, 0.05)",
     borderRadius: 16,
     padding: 16,
     marginBottom: 20,
     borderWidth: 1,
+    borderColor: "rgba(0, 255, 136, 0.1)",
   },
   statItem: {
     flex: 1,
     alignItems: "center",
   },
   statNumber: {
+    color: "#00FF88",
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: 4,
   },
   statLabel: {
+    color: "#A7F3D0",
     fontSize: 12,
     textAlign: "center",
   },
   statDivider: {
     width: 1,
+    backgroundColor: "rgba(0, 255, 136, 0.3)",
     marginHorizontal: 8,
   },
   form: {
+    backgroundColor: "rgba(20, 30, 20, 0.8)",
     borderRadius: 20,
     padding: 20,
     borderWidth: 1,
+    borderColor: "rgba(0, 255, 136, 0.1)",
   },
   label: {
+    color: "#A7F3D0",
     fontSize: 14,
     fontWeight: "500",
     marginBottom: 6,
@@ -418,7 +401,9 @@ const createStyles = (colors: any) => StyleSheet.create({
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
+    backgroundColor: "#1E261E",
     borderWidth: 1,
+    borderColor: "#2D4A3A",
     borderRadius: 12,
     paddingHorizontal: 12,
   },
@@ -427,6 +412,7 @@ const createStyles = (colors: any) => StyleSheet.create({
   },
   input: {
     flex: 1,
+    color: "#fff",
     paddingVertical: 14,
     fontSize: 16,
   },
@@ -449,17 +435,20 @@ const createStyles = (colors: any) => StyleSheet.create({
     height: 18,
     borderRadius: 4,
     borderWidth: 2,
+    borderColor: "#00FF88",
     marginRight: 8,
     alignItems: "center",
     justifyContent: "center",
   },
   checkboxChecked: {
-    backgroundColor: colors.primary,
+    backgroundColor: "#00FF88",
   },
   rememberMeText: {
+    color: "#A7F3D0",
     fontSize: 14,
   },
   forgotText: {
+    color: "#00FF88",
     fontSize: 14,
     fontWeight: "600",
   },
@@ -467,6 +456,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     
   },
   button: {
+    backgroundColor: "#00FF88",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -484,6 +474,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     gap: 8,
   },
   buttonText: {
+    color: "#0E1410",
     fontSize: 16,
     fontWeight: "bold",
   },
@@ -491,6 +482,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     marginTop: 20,
   },
   quickLoginTitle: {
+    color: "#A7F3D0",
     fontSize: 14,
     fontWeight: "600",
     marginBottom: 12,
@@ -505,12 +497,15 @@ const createStyles = (colors: any) => StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: "rgba(0, 255, 136, 0.1)",
+    borderWidth: 1,
+    borderColor: "rgba(0, 255, 136, 0.2)",
     paddingVertical: 12,
     borderRadius: 10,
     gap: 8,
-    borderWidth: 1,
   },
   quickLoginText: {
+    color: "#00FF88",
     fontSize: 14,
     fontWeight: "600",
   },
@@ -522,8 +517,10 @@ const createStyles = (colors: any) => StyleSheet.create({
   dividerLine: {
     flex: 1,
     height: 1,
+    backgroundColor: "#2D4A3A",
   },
   dividerText: {
+    color: "#64748b",
     fontSize: 12,
     marginHorizontal: 10,
   },
@@ -531,19 +528,23 @@ const createStyles = (colors: any) => StyleSheet.create({
     alignItems: "center",
   },
   footerText: {
+    color: "#A7F3D0",
     fontSize: 14,
   },
   signUpLink: {
     
   },
   signUpLinkText: {
+    color: "#00FF88",
     fontWeight: "bold",
   },
   benefitsCard: {
+    backgroundColor: "rgba(0, 255, 136, 0.05)",
     borderRadius: 16,
     padding: 20,
     marginTop: 20,
     borderWidth: 1,
+    borderColor: "rgba(0, 255, 136, 0.1)",
   },
   benefitsHeader: {
     flexDirection: "row",
@@ -552,10 +553,12 @@ const createStyles = (colors: any) => StyleSheet.create({
     gap: 10,
   },
   benefitsTitle: {
+    color: "#00FF88",
     fontSize: 16,
     fontWeight: "bold",
   },
   benefitsDescription: {
+    color: "#A7F3D0",
     fontSize: 14,
     lineHeight: 20,
     marginBottom: 12,
@@ -566,6 +569,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     gap: 6,
   },
   benefitsFooterText: {
+    color: "#64748b",
     fontSize: 12,
     fontStyle: "italic",
   },
@@ -577,6 +581,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     marginTop: 20,
   },
   securityText: {
+    color: "#64748b",
     fontSize: 12,
   },
 });

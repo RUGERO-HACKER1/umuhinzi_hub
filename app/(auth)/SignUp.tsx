@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { 
   View, 
   Text, 
@@ -13,8 +13,6 @@ import {
 import { Link, router } from "expo-router";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useTheme } from '../contexts/ThemeContext';
-import { getThemeColors } from '@/constants/Theme';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -32,15 +30,10 @@ export default function SignUp() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const fadeAnim = useState(new Animated.Value(0))[0];
-  const slideAnim = useState(new Animated.Value(50))[0];
+  const fadeAnim = new Animated.Value(0);
+  const slideAnim = new Animated.Value(50);
 
-  // ⭐⭐⭐ THEME SETUP - ADD THESE 3 LINES ⭐⭐⭐
-  const { theme, currentTheme, setTheme, toggleTheme } = useTheme();
-  const colors = getThemeColors(currentTheme);
-  const styles = createStyles(colors);
-
-  useEffect(() => {
+  React.useEffect(() => {
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
@@ -97,28 +90,28 @@ export default function SignUp() {
     }, 2000);
   };
 
-  const farmTypes = [
-    { id: "vegetables", name: "Vegetables", icon: "carrot" },
-    { id: "fruits", name: "Fruits", icon: "apple" },
-    { id: "cereals", name: "Cereals", icon: "wheat" },
-    { id: "livestock", name: "Livestock", icon: "cow" },
-    { id: "poultry", name: "Poultry", icon: "egg" },
-    { id: "mixed", name: "Mixed Farming", icon: "sprout" },
-  ];
+  // const farmTypes = [
+  //   { id: "vegetables", name: "Vegetables", icon: "carrot" },
+  //   { id: "fruits", name: "Fruits", icon: "apple" },
+  //   { id: "cereals", name: "Cereals", icon: "wheat" },
+  //   { id: "livestock", name: "Livestock", icon: "cow" },
+  //   { id: "poultry", name: "Poultry", icon: "egg" },
+  //   { id: "mixed", name: "Mixed Farming", icon: "sprout" },
+  // ];
 
-  const farmerScales = [
-    { id: "small", name: "Smallholder (<1 Ha)", icon: "home" },
-    { id: "medium", name: "Medium (1-5 Ha)", icon: "account" },
-    { id: "large", name: "Large (>5 Ha)", icon: "scale" },
-    { id: "cooperative", name: "Cooperative", icon: "account-group" },
-  ];
+  // const farmerScales = [
+  //   { id: "small", name: "Smallholder (<1 Ha)", icon: "home" },
+  //   { id: "medium", name: "Medium (1-5 Ha)", icon: "account" },
+  //   { id: "large", name: "Large (>5 Ha)", icon: "scale" },
+  //   { id: "cooperative", name: "Cooperative", icon: "account-group" },
+  // ];
 
   return (
     <SafeAreaView style={styles.safeArea}>
       {/* Animated Background */}
       <View style={styles.backgroundOverlay}>
-        <Animated.View style={[styles.floatingOrb, styles.orb1, { backgroundColor: colors.primary }]} />
-        <Animated.View style={[styles.floatingOrb, styles.orb2, { backgroundColor: colors.info }]} />
+        <Animated.View style={[styles.floatingOrb, styles.orb1]} />
+        <Animated.View style={[styles.floatingOrb, styles.orb2]} />
       </View>
 
       <ScrollView 
@@ -134,16 +127,16 @@ export default function SignUp() {
           {/* Header Section */}
           <View style={styles.header}>
             <TouchableOpacity 
-              style={[styles.backButton, { backgroundColor: `${colors.primary}20` }]}
+              style={styles.backButton}
               onPress={() => router.back()}
             >
-              <Ionicons name="arrow-back" size={22} color={colors.primary} />
+              <Ionicons name="arrow-back" size={22} color="#00FF88" />
             </TouchableOpacity>
 
             <View style={styles.logoSection}>
               <View style={styles.logoContainer}>
-                <View style={[styles.logoGlow, { backgroundColor: colors.primary }]} />
-                <MaterialCommunityIcons name="farmer" size={44} color={colors.primary} />
+                <View style={styles.logoGlow} />
+                <MaterialCommunityIcons name="farmer" size={44} color="#00FF88" />
               </View>
               <Text style={styles.title}>Join UmuhinziHub</Text>
               <Text style={styles.subtitle}>
@@ -152,132 +145,115 @@ export default function SignUp() {
             </View>
           </View>
 
-          {/* Theme Toggle Button */}
-          <TouchableOpacity 
-            style={[styles.themeToggle, { backgroundColor: `${colors.primary}20` }]}
-            onPress={toggleTheme}
-          >
-            <Ionicons
-              name={currentTheme === 'dark' ? "moon" : "sunny"}
-              size={20}
-              color={colors.primary}
-            />
-            <Text style={[styles.themeToggleText, { color: colors.primary }]}>
-              {currentTheme === 'dark' ? 'Dark' : 'Light'} Mode
-            </Text>
-          </TouchableOpacity>
-
           {/* Farm Type Selection */}
-          <View style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>What do you farm? *</Text>
+          {/* <View style={styles.section}>
+            <Text style={styles.sectionTitle}>What do you farm? *</Text>
             <View style={styles.farmTypeGrid}>
               {farmTypes.map((type) => (
                 <TouchableOpacity
                   key={type.id}
                   style={[
                     styles.farmTypeButton,
-                    { backgroundColor: `${colors.primary}10`, borderColor: colors.border },
-                    form.farmType === type.id && [styles.farmTypeButtonActive, { backgroundColor: colors.primary, borderColor: colors.primary }]
+                    form.farmType === type.id && styles.farmTypeButtonActive
                   ]}
                   onPress={() => handleInputChange('farmType', type.id)}
                 >
                   <MaterialCommunityIcons 
                     name={type.icon as any} 
                     size={20} 
-                    color={form.farmType === type.id ? colors.background : colors.primary} 
+                    color={form.farmType === type.id ? "#0E1410" : "#00FF88"} 
                   />
                   <Text style={[
                     styles.farmTypeText,
-                    { color: colors.primary },
-                    form.farmType === type.id && [styles.farmTypeTextActive, { color: colors.background }]
+                    form.farmType === type.id && styles.farmTypeTextActive
                   ]}>
                     {type.name}
                   </Text>
                 </TouchableOpacity>
               ))}
             </View>
-          </View>
+          </View> */}
 
           {/* Farm Scale Selection */}
-          <View style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>Farm Scale *</Text>
+          {/* <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Farm Scale *</Text>
             <View style={styles.farmScaleGrid}>
               {farmerScales.map((scale) => (
                 <TouchableOpacity
                   key={scale.id}
-                  style={[styles.farmScaleButton, { backgroundColor: `${colors.primary}10`, borderColor: colors.border }]}
+                  style={styles.farmScaleButton}
                 >
                   <MaterialCommunityIcons 
                     name={scale.icon as any} 
                     size={18} 
-                    color={colors.primary} 
+                    color="#00FF88" 
                   />
-                  <Text style={[styles.farmScaleText, { color: colors.textSecondary }]}>{scale.name}</Text>
+                  <Text style={styles.farmScaleText}>{scale.name}</Text>
                 </TouchableOpacity>
               ))}
             </View>
-          </View>
+          </View> */}
 
           {/* Form Fields */}
-          <View style={[styles.form, { backgroundColor: colors.card, borderColor: colors.border }]}>
-            <Text style={[styles.label, { color: colors.textSecondary }]}>Full Name *</Text>
-            <View style={[styles.inputContainer, { backgroundColor: colors.card, borderColor: colors.border }]}>
-              <Ionicons name="person-outline" size={20} color={colors.primary} style={styles.inputIcon} />
+          <View style={styles.form}>
+            <Text style={styles.label}>Full Name *</Text>
+            <View style={styles.inputContainer}>
+              <Ionicons name="person-outline" size={20} color="#00FF88" style={styles.inputIcon} />
               <TextInput
-                style={[styles.input, { color: colors.text }]}
+                style={styles.input}
                 placeholder="Enter your full name"
-                placeholderTextColor={colors.textSecondary}
+                placeholderTextColor="#64748b"
                 value={form.fullName}
                 onChangeText={(value) => handleInputChange('fullName', value)}
               />
             </View>
 
-            <Text style={[styles.label, { color: colors.textSecondary }]}>Phone Number *</Text>
-            <View style={[styles.inputContainer, { backgroundColor: colors.card, borderColor: colors.border }]}>
-              <Ionicons name="call-outline" size={20} color={colors.primary} style={styles.inputIcon} />
+            <Text style={styles.label}>Phone Number *</Text>
+            <View style={styles.inputContainer}>
+              <Ionicons name="call-outline" size={20} color="#00FF88" style={styles.inputIcon} />
               <TextInput
-                style={[styles.input, { color: colors.text }]}
+                style={styles.input}
                 placeholder="+250 XXX XXX XXX"
-                placeholderTextColor={colors.textSecondary}
+                placeholderTextColor="#64748b"
                 keyboardType="phone-pad"
                 value={form.phone}
                 onChangeText={(value) => handleInputChange('phone', value)}
               />
             </View>
 
-            <Text style={[styles.label, { color: colors.textSecondary }]}>Email (Optional)</Text>
-            <View style={[styles.inputContainer, { backgroundColor: colors.card, borderColor: colors.border }]}>
-              <Ionicons name="mail-outline" size={20} color={colors.primary} style={styles.inputIcon} />
+            <Text style={styles.label}>Email (Optional)</Text>
+            <View style={styles.inputContainer}>
+              <Ionicons name="mail-outline" size={20} color="#00FF88" style={styles.inputIcon} />
               <TextInput
-                style={[styles.input, { color: colors.text }]}
+                style={styles.input}
                 placeholder="your.email@example.com"
-                placeholderTextColor={colors.textSecondary}
+                placeholderTextColor="#64748b"
                 keyboardType="email-address"
                 value={form.email}
                 onChangeText={(value) => handleInputChange('email', value)}
               />
             </View>
 
-            <Text style={[styles.label, { color: colors.textSecondary }]}>Region / District *</Text>
-            <View style={[styles.inputContainer, { backgroundColor: colors.card, borderColor: colors.border }]}>
-              <Ionicons name="location-outline" size={20} color={colors.primary} style={styles.inputIcon} />
+            <Text style={styles.label}>Region / District *</Text>
+            <View style={styles.inputContainer}>
+              <Ionicons name="location-outline" size={20} color="#00FF88" style={styles.inputIcon} />
               <TextInput
-                style={[styles.input, { color: colors.text }]}
+                style={styles.input}
                 placeholder="Select your region"
-                placeholderTextColor={colors.textSecondary}
+                placeholderTextColor="#64748b"
                 value={form.region}
                 onChangeText={(value) => handleInputChange('region', value)}
               />
-              <Ionicons name="chevron-down" size={20} color={colors.primary} style={styles.dropdownIcon} />
+              <Ionicons name="chevron-down" size={20} color="#00FF88" style={styles.dropdownIcon} />
             </View>
 
-            <Text style={[styles.label, { color: colors.textSecondary }]}>Password *</Text>
-            <View style={[styles.inputContainer, { backgroundColor: colors.card, borderColor: colors.border }]}>
-              <Ionicons name="lock-closed-outline" size={20} color={colors.primary} style={styles.inputIcon} />
+            <Text style={styles.label}>Password *</Text>
+            <View style={styles.inputContainer}>
+              <Ionicons name="lock-closed-outline" size={20} color="#00FF88" style={styles.inputIcon} />
               <TextInput
-                style={[styles.input, { color: colors.text }]}
+                style={styles.input}
                 placeholder="Create a strong password"
-                placeholderTextColor={colors.textSecondary}
+                placeholderTextColor="#64748b"
                 secureTextEntry={!showPassword}
                 value={form.password}
                 onChangeText={(value) => handleInputChange('password', value)}
@@ -286,19 +262,19 @@ export default function SignUp() {
                 <Ionicons 
                   name={showPassword ? "eye-off-outline" : "eye-outline"} 
                   size={20} 
-                  color={colors.primary} 
+                  color="#00FF88" 
                   style={styles.eyeIcon} 
                 />
               </TouchableOpacity>
             </View>
 
-            <Text style={[styles.label, { color: colors.textSecondary }]}>Confirm Password *</Text>
-            <View style={[styles.inputContainer, { backgroundColor: colors.card, borderColor: colors.border }]}>
-              <Ionicons name="lock-closed-outline" size={20} color={colors.primary} style={styles.inputIcon} />
+            <Text style={styles.label}>Confirm Password *</Text>
+            <View style={styles.inputContainer}>
+              <Ionicons name="lock-closed-outline" size={20} color="#00FF88" style={styles.inputIcon} />
               <TextInput
-                style={[styles.input, { color: colors.text }]}
+                style={styles.input}
                 placeholder="Confirm your password"
-                placeholderTextColor={colors.textSecondary}
+                placeholderTextColor="#64748b"
                 secureTextEntry={!showConfirmPassword}
                 value={form.confirmPassword}
                 onChangeText={(value) => handleInputChange('confirmPassword', value)}
@@ -307,7 +283,7 @@ export default function SignUp() {
                 <Ionicons 
                   name={showConfirmPassword ? "eye-off-outline" : "eye-outline"} 
                   size={20} 
-                  color={colors.primary} 
+                  color="#00FF88" 
                   style={styles.eyeIcon} 
                 />
               </TouchableOpacity>
@@ -315,16 +291,16 @@ export default function SignUp() {
 
             {/* Terms Agreement */}
             <View style={styles.termsContainer}>
-              <TouchableOpacity style={[styles.checkbox, { backgroundColor: colors.primary }]}>
-                <Ionicons name="checkmark" size={16} color={colors.background} />
+              <TouchableOpacity style={styles.checkbox}>
+                <Ionicons name="checkmark" size={16} color="#0E1410" />
               </TouchableOpacity>
-              <Text style={[styles.termsText, { color: colors.textSecondary }]}>
+              <Text style={styles.termsText}>
                 I agree to the{" "}
-                <Text style={[styles.termsLink, { color: colors.primary }]} onPress={() => router.push('/terms')}>
+                <Text style={styles.termsLink} onPress={() => router.push('/terms')}>
                   Terms of Service
                 </Text>{" "}
                 and{" "}
-                <Text style={[styles.termsLink, { color: colors.primary }]} onPress={() => router.push('/privacy')}>
+                <Text style={styles.termsLink} onPress={() => router.push('/privacy')}>
                   Privacy Policy
                 </Text>
               </Text>
@@ -332,53 +308,53 @@ export default function SignUp() {
 
             {/* Sign Up Button */}
             <TouchableOpacity 
-              style={[styles.button, { backgroundColor: colors.primary }, isLoading && styles.buttonDisabled]}
+              style={[styles.button, isLoading && styles.buttonDisabled]}
               onPress={handleSignUp}
               disabled={isLoading}
             >
               {isLoading ? (
                 <View style={styles.loadingContainer}>
-                  <Ionicons name="reload" size={20} color={colors.background} />
-                  <Text style={[styles.buttonText, { color: colors.background }]}>Creating Account...</Text>
+                  <Ionicons name="reload" size={20} color="#0E1410" />
+                  <Text style={styles.buttonText}>Creating Account...</Text>
                 </View>
               ) : (
                 <>
-                  <MaterialCommunityIcons name="farmer" size={20} color={colors.background} />
-                  <Text style={[styles.buttonText, { color: colors.background }]}>Become a Farmer Member</Text>
-                  <Ionicons name="arrow-forward" size={18} color={colors.background} />
+                  <MaterialCommunityIcons name="farmer" size={20} color="#0E1410" />
+                  <Text style={styles.buttonText}>Become a Farmer Member</Text>
+                  <Ionicons name="arrow-forward" size={18} color="#0E1410" />
                 </>
               )}
             </TouchableOpacity>
 
             {/* Benefits Section */}
-            <View style={[styles.benefitsSection, { backgroundColor: `${colors.primary}10`, borderColor: colors.border }]}>
-              <Text style={[styles.benefitsTitle, { color: colors.primary }]}>Why join UmuhinziHub?</Text>
+            <View style={styles.benefitsSection}>
+              <Text style={styles.benefitsTitle}>Why join UmuhinziHub?</Text>
               <View style={styles.benefitsList}>
                 <View style={styles.benefitItem}>
-                  <Ionicons name="cloud" size={16} color={colors.primary} />
-                  <Text style={[styles.benefitText, { color: colors.textSecondary }]}>AI Weather Forecasts</Text>
+                  <Ionicons name="cloud" size={16} color="#00FF88" />
+                  <Text style={styles.benefitText}>AI Weather Forecasts</Text>
                 </View>
                 <View style={styles.benefitItem}>
-                  <Ionicons name="cart" size={16} color={colors.primary} />
-                  <Text style={[styles.benefitText, { color: colors.textSecondary }]}>Direct Market Access</Text>
+                  <Ionicons name="cart" size={16} color="#00FF88" />
+                  <Text style={styles.benefitText}>Direct Market Access</Text>
                 </View>
                 <View style={styles.benefitItem}>
-                  <Ionicons name="camera" size={16} color={colors.primary} />
-                  <Text style={[styles.benefitText, { color: colors.textSecondary }]}>Crop Disease Detection</Text>
+                  <Ionicons name="camera" size={16} color="#00FF88" />
+                  <Text style={styles.benefitText}>Crop Disease Detection</Text>
                 </View>
                 <View style={styles.benefitItem}>
-                  <Ionicons name="chatbubble" size={16} color={colors.primary} />
-                  <Text style={[styles.benefitText, { color: colors.textSecondary }]}>24/7 AI Farming Assistant</Text>
+                  <Ionicons name="chatbubble" size={16} color="#00FF88" />
+                  <Text style={styles.benefitText}>24/7 AI Farming Assistant</Text>
                 </View>
               </View>
             </View>
 
             {/* Link to Login */}
             <View style={styles.footer}>
-              <Text style={[styles.footerText, { color: colors.textSecondary }]}>
+              <Text style={styles.footerText}>
                 Already have an account?{" "}
                 <Link href="/LogIn" style={styles.loginLink}>
-                  <Text style={[styles.loginLinkText, { color: colors.primary }]}>Log In</Text>
+                  <Text style={styles.loginLinkText}>Log In</Text>
                 </Link>
               </Text>
             </View>
@@ -386,8 +362,8 @@ export default function SignUp() {
 
           {/* Bottom Note */}
           <View style={styles.bottomNote}>
-            <Ionicons name="shield-checkmark" size={16} color={colors.primary} />
-            <Text style={[styles.bottomNoteText, { color: colors.textSecondary }]}>
+            <Ionicons name="shield-checkmark" size={16} color="#00FF88" />
+            <Text style={styles.bottomNoteText}>
               Trusted by 50,000+ African farmers
             </Text>
           </View>
@@ -397,11 +373,10 @@ export default function SignUp() {
   );
 }
 
-// ⭐⭐⭐ REPLACE StyleSheet.create WITH THIS FUNCTION ⭐⭐⭐
-const createStyles = (colors: any) => StyleSheet.create({
+const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: "#0E1410",
   },
   backgroundOverlay: {
     position: "absolute",
@@ -413,48 +388,37 @@ const createStyles = (colors: any) => StyleSheet.create({
   floatingOrb: {
     position: "absolute",
     borderRadius: 999,
-    opacity: 0.1,
   },
   orb1: {
     top: "5%",
     right: "-10%",
     width: 150,
     height: 150,
+    backgroundColor: "#00FF88",
+    opacity: 0.1,
   },
   orb2: {
     bottom: "10%",
     left: "-10%",
     width: 200,
     height: 200,
+    backgroundColor: "#60A5FA",
     opacity: 0.08,
   },
   container: {
     flexGrow: 1,
     padding: 20,
     paddingBottom: 40,
-    backgroundColor: colors.background,
   },
   header: {
     marginBottom: 10,
   },
   backButton: {
     padding: 6,
+    backgroundColor: "rgba(0, 255, 136, 0.1)",
     borderRadius: 8,
     alignSelf: "flex-start",
     marginBottom: 20,
-  },
-  themeToggle: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 12,
-    borderRadius: 12,
-    marginBottom: 20,
-    gap: 8,
-  },
-  themeToggleText: {
-    fontSize: 14,
-    fontWeight: '600',
   },
   logoSection: {
     alignItems: "center",
@@ -470,26 +434,28 @@ const createStyles = (colors: any) => StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
+    backgroundColor: "#00FF88",
     opacity: 0.2,
     position: "absolute",
   },
   title: {
+    color: "#fff",
     fontSize: 28,
     fontWeight: "bold",
     textAlign: "center",
     marginBottom: 8,
-    color: colors.text,
   },
   subtitle: {
+    color: "#A7F3D0",
     textAlign: "center",
     fontSize: 16,
     lineHeight: 22,
-    color: colors.textSecondary,
   },
   section: {
     marginBottom: 20,
   },
   sectionTitle: {
+    color: "#fff",
     fontSize: 16,
     fontWeight: "600",
     marginBottom: 12,
@@ -501,21 +467,26 @@ const createStyles = (colors: any) => StyleSheet.create({
   },
   farmTypeButton: {
     width: (screenWidth - 60) / 3,
+    backgroundColor: "rgba(0, 255, 136, 0.1)",
     borderWidth: 2,
+    borderColor: "rgba(0, 255, 136, 0.3)",
     borderRadius: 12,
     padding: 12,
     alignItems: "center",
     gap: 6,
   },
   farmTypeButtonActive: {
-    borderWidth: 2,
+    backgroundColor: "#00FF88",
+    borderColor: "#00FF88",
   },
   farmTypeText: {
+    color: "#00FF88",
     fontSize: 12,
     fontWeight: "600",
     textAlign: "center",
   },
   farmTypeTextActive: {
+    color: "#0E1410",
     fontWeight: "bold",
   },
   farmScaleGrid: {
@@ -525,7 +496,9 @@ const createStyles = (colors: any) => StyleSheet.create({
   },
   farmScaleButton: {
     width: (screenWidth - 60) / 2,
+    backgroundColor: "rgba(0, 255, 136, 0.05)",
     borderWidth: 1,
+    borderColor: "rgba(0, 255, 136, 0.2)",
     borderRadius: 10,
     padding: 12,
     alignItems: "center",
@@ -534,16 +507,20 @@ const createStyles = (colors: any) => StyleSheet.create({
     justifyContent: "center",
   },
   farmScaleText: {
+    color: "#A7F3D0",
     fontSize: 12,
     textAlign: "center",
     fontWeight: "500",
   },
   form: {
+    backgroundColor: "rgba(20, 30, 20, 0.8)",
     borderRadius: 20,
     padding: 20,
     borderWidth: 1,
+    borderColor: "rgba(0, 255, 136, 0.1)",
   },
   label: {
+    color: "#A7F3D0",
     fontSize: 14,
     fontWeight: "500",
     marginBottom: 6,
@@ -552,7 +529,9 @@ const createStyles = (colors: any) => StyleSheet.create({
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
+    backgroundColor: "#1E261E",
     borderWidth: 1,
+    borderColor: "#2D4A3A",
     borderRadius: 12,
     paddingHorizontal: 12,
   },
@@ -561,6 +540,7 @@ const createStyles = (colors: any) => StyleSheet.create({
   },
   input: {
     flex: 1,
+    color: "#fff",
     paddingVertical: 14,
     fontSize: 16,
   },
@@ -580,6 +560,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     width: 20,
     height: 20,
     borderRadius: 6,
+    backgroundColor: "#00FF88",
     alignItems: "center",
     justifyContent: "center",
     marginRight: 10,
@@ -587,13 +568,16 @@ const createStyles = (colors: any) => StyleSheet.create({
   },
   termsText: {
     flex: 1,
+    color: "#A7F3D0",
     fontSize: 14,
     lineHeight: 18,
   },
   termsLink: {
+    color: "#00FF88",
     fontWeight: "600",
   },
   button: {
+    backgroundColor: "#00FF88",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -611,16 +595,20 @@ const createStyles = (colors: any) => StyleSheet.create({
     gap: 8,
   },
   buttonText: {
+    color: "#0E1410",
     fontSize: 16,
     fontWeight: "bold",
   },
   benefitsSection: {
     marginTop: 20,
     padding: 16,
+    backgroundColor: "rgba(0, 255, 136, 0.05)",
     borderRadius: 12,
     borderWidth: 1,
+    borderColor: "rgba(0, 255, 136, 0.1)",
   },
   benefitsTitle: {
+    color: "#00FF88",
     fontSize: 16,
     fontWeight: "bold",
     marginBottom: 12,
@@ -635,6 +623,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     gap: 8,
   },
   benefitText: {
+    color: "#A7F3D0",
     fontSize: 14,
   },
   footer: {
@@ -642,12 +631,14 @@ const createStyles = (colors: any) => StyleSheet.create({
     marginTop: 20,
   },
   footerText: {
+    color: "#A7F3D0",
     fontSize: 14,
   },
   loginLink: {
     
   },
   loginLinkText: {
+    color: "#00FF88",
     fontWeight: "bold",
   },
   bottomNote: {
@@ -658,6 +649,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     marginTop: 20,
   },
   bottomNoteText: {
+    color: "#64748b",
     fontSize: 12,
   },
 });

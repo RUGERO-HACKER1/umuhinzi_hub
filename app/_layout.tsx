@@ -24,7 +24,6 @@ function ThemedStack() {
         }}
       >
         {/* Define navigation screens */}
-        <Stack.Screen name="index" />
         <Stack.Screen name="LogIn" />
         <Stack.Screen name="SignUp" />
         <Stack.Screen name="ForgotPassword" />
